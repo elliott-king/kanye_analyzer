@@ -1,0 +1,17 @@
+{
+  "name": "kanye-realtime",
+  "version": "1.0.0",
+  "description": "Prints the newest submissions to r/kanye in realtime.",
+  "main": "kanye-realtime.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "node-emoji": "^1.8.1",
+    "reddit-snooper": "^1.0.1",
+    "ws": "^5.1.1"
+  }
+}

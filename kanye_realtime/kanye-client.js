@@ -1,6 +1,12 @@
 // const WebSocket = require('ws');
-port = 8081;
-var ws = new WebSocket("ws://localhost:" + port);
+// port = 8081;
+var port = 443;
+// var port = 8090;
+var ws = new WebSocket("wss://cannibaltaylor.com:" + port);
+// var ws = new WebSocket("wss://cannibaltaylor.com");
+ws.onopen = function() {
+	console.log("Connected");
+}
 
 divQueue = []
 // queues in js: https://stackoverflow.com/questions/1590247/how-do-you-implement-a-stack-and-a-queue-in-javascript#1590262
@@ -53,10 +59,6 @@ function addComment(comment) {
 }
 ws.onmessage = function(comment) {
 	addComment(JSON.parse(comment.data));
-};
-
-ws.onopen = function() {
-	console.log("Connected");
 };
 
 ws.onclose = function() {

@@ -11,6 +11,7 @@ var cors = require("cors");
 var app = express();
 
 app.use(express.static("./public"));
-app.listen(8080);
-console.log("Express app running on port 8080");
+var port = 8060;
+app.listen(port);
+console.log("Express app running on port " + port);
 module.exports = app;

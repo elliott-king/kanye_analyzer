@@ -5,7 +5,7 @@ var WebSocket = require('ws');
 // var server = express();
 
 // server.use(express.static(__dirname));
-var serverPort = 8081;
+var serverPort = 8080;
 // server.listen(serverPort);
 var wss = new WebSocket.Server({port:serverPort});
 console.log("Kanye realtime running on port " + serverPort + " started at: " + new Date());
@@ -34,7 +34,7 @@ wss.on('connection', function(ws) {
 		user: "Welcome!",
 		data: {
 			body: "Welcome to the r/Kanye realtime feed!",
-			name: "realtime-intro-connection-messaage",
+			name: "realtime-intro-connection-message",
 		},
 
 	});

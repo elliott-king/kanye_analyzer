@@ -1,45 +1,43 @@
-var redditSnooper = require('reddit-snooper');
-var emoji = require('node-emoji');
-var WebSocket = require('ws');
-// var express = require('express');
-// var server = express();
+const http = require('http');
+const redditSnooper = require('reddit-snooper');
+const emoji = require('node-emoji');
+// var WebSocket = require('ws');
+const path = require('path');
+const socketio = require('socket.io');
+const express = require('express');
 
-// server.use(express.static(__dirname));
-var serverPort = 8080;
-// server.listen(serverPort);
-var wss = new WebSocket.Server({port:serverPort});
-console.log("Kanye realtime running on port " + serverPort + " started at: " + new Date());
+const app = express();
+const server = http.createServer(app);
+const io = socketio(server);
+app.use(express.static(path.join(__dirname, 'public')));
+const serverPort = 8080;
 
-snooper = new redditSnooper(
-	{
+snooper = new redditSnooper({
 		automatic_retries: true,
 		api_requests_per_minute: 60
-	});
+});
 
-// Broadcast to all.
-wss.broadcast = function broadcast(data) {
-  wss.clients.forEach(function each(client) {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(data);
-    }
-  });
-};
-
-wss.on('connection', function(ws) {
-
-	console.log("Connected to websocket: " + ws);
+io.on('connection', socket => {
+	console.log(`Socket ${socket.id} connected.`);
 
 
 	var introComment = JSON.stringify({
-		user: "Welcome!",
 		data: {
+			author: "Welcome!",
 			body: "Welcome to the r/Kanye realtime feed!",
 			name: "realtime-intro-connection-message",
 		},
 
 	});
-	ws.send(introComment);
+	socket.emit('comment', introComment);
+
+	socket.on('disconnect', socket => {
+		console.log(`Socket ${socket.id} disconnected.`);
+	});
 });
+
+
+console.log("Kanye realtime running on port " + serverPort + " started at: " + new Date());
 
 snooper.watcher.getCommentWatcher('kanye')
 	.on('comment', function(comment) {
@@ -50,7 +48,7 @@ snooper.watcher.getCommentWatcher('kanye')
 			console.log("Comment posted by: " + comment.data.author);
 			console.log("contents: " + comment.data.body);
 
-		wss.broadcast(JSON.stringify(comment));
+		io.emit('comment', JSON.stringify(comment));
 
 	//if(contents.indexOf(wave) > -1){
 		// wave exists in comment
@@ -59,4 +57,14 @@ snooper.watcher.getCommentWatcher('kanye')
 	})
 	.on('error', console.error);
 
-// module.exports = server;
+// Server startup
+
+
+server.listen(+serverPort, '127.0.0.1', (err) => {
+  if (err) {
+    console.log(err.stack);
+    return;
+  }
+
+  console.log(`Kanye realtime node listening on http://127.0.0.1:${serverPort} started at: ${new Date()}.`);
+});

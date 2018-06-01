@@ -10,3 +10,8 @@ https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-applica
 
 NGINX SSL config (examplel using 'rewrite' under location)
 https://gist.github.com/apollolm/23cdf72bd7db523b4e1c
+
+Deploy multiple Node applications on one web server in subdomains with Nginx
+http://skovalyov.blogspot.com/2012/10/deploy-multiple-node-applications-on.html
+
+

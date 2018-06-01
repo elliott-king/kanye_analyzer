@@ -9,7 +9,7 @@ const express = require('express');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 const serverPort = 8080;
 
 snooper = new redditSnooper({
@@ -35,9 +35,6 @@ io.on('connection', socket => {
 		console.log(`Socket ${socket.id} disconnected.`);
 	});
 });
-
-
-console.log("Kanye realtime running on port " + serverPort + " started at: " + new Date());
 
 snooper.watcher.getCommentWatcher('kanye')
 	.on('comment', function(comment) {

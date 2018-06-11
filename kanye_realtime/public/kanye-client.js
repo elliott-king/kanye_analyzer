@@ -30,8 +30,9 @@ function createDiv(comment) {
 function addComment(comment) {
 	// First remove from queue & DOM if already five comments.
 
-	console.log("Comment posted by: " + comment.data.author);
-	console.log("Contents: " + comment.data.body);
+	console.log(comment); // Entire JSON, but more informative
+	//console.log("Comment posted by: " + comment.data.author);
+	//console.log("Contents: " + comment.data.body);
 
     if (divQueue.length === 5) {
 		var oldestCommentFullname = divQueue.shift();

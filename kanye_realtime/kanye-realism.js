@@ -1,21 +1,46 @@
 const http = require('http');
 const redditSnooper = require('reddit-snooper');
 const emoji = require('node-emoji');
-// var WebSocket = require('ws');
 const path = require('path');
 const socketio = require('socket.io');
 const express = require('express');
+const assert = require('assert');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 app.use(express.static('public'));
-const serverPort = 8080;
 
-snooper = new redditSnooper({
+var args = require('minimist')(process.argv.slice(2));
+const {serverPort = 8080, dbname = 'test', collName = 'test'} = args;
+
+var snooper = new redditSnooper({
 		automatic_retries: true,
 		api_requests_per_minute: 60
 });
+
+var MongoClient = require('mongodb').MongoClient
+        , format = require('util').format
+        , mongoPort = '27017';
+
+let mdb, collection; // Mongo database
+
+MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, function(err, client) {
+	if (err) throw err;
+	mdb = client.db(dbname);
+	collection = mdb.collection(collName);
+        console.log(`Connected to db ${dbname} on port ${mongoPort}.`);
+
+	//var collection = db.collection('test_insert');
+//	collection.insert({a:2}, function(err, docs) {
+//		collection.count(function(err, count) {
+//			console.log(format("count = %s", count));
+//		});
+	});
+
+//	collection.find().toArray(function(err, results) {
+//		console.dir(results);
+//		client.close();
 
 io.on('connection', socket => {
 	console.log(`Socket ${socket.id} connected.`);
@@ -24,7 +49,7 @@ io.on('connection', socket => {
 	var introComment = JSON.stringify({
 		data: {
 			author: "Welcome!",
-			body: "Welcome to the r/Kanye realtime feed!",
+			body: "Welcome to the r/Kanye realtime wavy feed!",
 			name: "realtime-intro-connection-message",
 		},
 
@@ -40,16 +65,25 @@ snooper.watcher.getCommentWatcher('kanye')
 	.on('comment', function(comment) {
 		var contents = comment.data.body;
 		var user = comment.user;
+
 		var wave = emoji.get('ocean');
+		var waves = [wave, "wavy", "wavey"];
 
-			console.log("Comment posted by: " + comment.data.author);
-			console.log("contents: " + comment.data.body);
-
-		io.emit('comment', JSON.stringify(comment));
-
-	//if(contents.indexOf(wave) > -1){
-		// wave exists in comment
-	//}
+		for (var i = 0; i < waves.length; i++) {
+			// https://stackoverflow.com/questions/1789945/how-to-check-whether-a-string-contains-a-substring-in-javascript
+			if (contents.includes(waves[i])) {
+				// wave emoji exists in comment
+				console.log(`Comment posted by: ${comment.data.author} on: ${new Date(comment.data.created*1000)}`);
+				console.log("contents: " + comment.data.body);
+				io.emit('comment', JSON.stringify(comment));
+				collection.insertOne(comment.data, 
+						     function(err, result) {
+					assert.equal(null, err);
+					console.log("Result of insertion: " + result);
+				}); 
+				break;
+			}
+		}
 
 	})
 	.on('error', console.error);

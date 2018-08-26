@@ -30,12 +30,8 @@ MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, function(err, client) {
 	mdb = client.db(dbname);
 	collection = mdb.collection(collName);
         console.log(`Connected to db ${dbname} on port ${mongoPort}.`);
-
 	});
 
-//	collection.find().toArray(function(err, results) {
-//		console.dir(results);
-//		client.close();
 
 io.on('connection', socket => {
 	console.log(`Socket ${socket.id} connected.`);
@@ -45,11 +41,18 @@ io.on('connection', socket => {
 		author: "Welcome!",
 		body: "Welcome to the r/Kanye realtime wavy feed!",
 		name: "realtime-intro-connection-message",
-		date: (new Date).getTime(),
+		created: (new Date).getTime(),
 	});
 	socket.emit('comment', introComment);
-	// Need 
-	// latest_comments = collection.find({created:}, {created: 1, _id: 0}).limit(4);
+
+	// Send four most recent (oldest first)
+	collection.find().sort({created: -1}).limit(4).toArray(function(err, docs) {
+		assert.equal(err, null);
+		assert.equal(docs.length, 4);
+		for (var i = docs.length - 1; i >= 0; i--) {
+			socket.emit('comment', JSON.stringify(docs[i]));
+		}
+	});
 
 	socket.on('disconnect', socket => {
 		console.log(`Socket ${socket.id} disconnected.`);

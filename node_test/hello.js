@@ -10,7 +10,7 @@ var express = require('express');
 var cors = require("cors");
 var app = express();
 
-app.use(express.static("./public"));
+app.use(express.static(__dirname + "/public"));
 var port = 8060;
 app.listen(port);
 console.log("Express app running on port " + port);

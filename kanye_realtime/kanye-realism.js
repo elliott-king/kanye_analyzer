@@ -9,7 +9,7 @@ const assert = require('assert');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 
 var args = require('minimist')(process.argv.slice(2));
 const {serverPort = 8080, dbname = 'test', collName = 'test'} = args;
@@ -31,11 +31,6 @@ MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, function(err, client) {
 	collection = mdb.collection(collName);
         console.log(`Connected to db ${dbname} on port ${mongoPort}.`);
 
-	//var collection = db.collection('test_insert');
-//	collection.insert({a:2}, function(err, docs) {
-//		collection.count(function(err, count) {
-//			console.log(format("count = %s", count));
-//		});
 	});
 
 //	collection.find().toArray(function(err, results) {
@@ -47,14 +42,14 @@ io.on('connection', socket => {
 
 
 	var introComment = JSON.stringify({
-		data: {
-			author: "Welcome!",
-			body: "Welcome to the r/Kanye realtime wavy feed!",
-			name: "realtime-intro-connection-message",
-		},
-
+		author: "Welcome!",
+		body: "Welcome to the r/Kanye realtime wavy feed!",
+		name: "realtime-intro-connection-message",
+		date: (new Date).getTime(),
 	});
 	socket.emit('comment', introComment);
+	// Need 
+	// latest_comments = collection.find({created:}, {created: 1, _id: 0}).limit(4);
 
 	socket.on('disconnect', socket => {
 		console.log(`Socket ${socket.id} disconnected.`);
@@ -75,7 +70,7 @@ snooper.watcher.getCommentWatcher('kanye')
 				// wave emoji exists in comment
 				console.log(`Comment posted by: ${comment.data.author} on: ${new Date(comment.data.created*1000)}`);
 				console.log("contents: " + comment.data.body);
-				io.emit('comment', JSON.stringify(comment));
+				io.emit('comment', JSON.stringify(comment.data));
 				collection.insertOne(comment.data, 
 						     function(err, result) {
 					assert.equal(null, err);

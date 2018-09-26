@@ -36,14 +36,12 @@ MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, function(err, client) {
 io.on('connection', socket => {
 	console.log(`Socket ${socket.id} connected.`);
 
-
-	var introComment = JSON.stringify({
+	socket.emit('comment', JSON.stringify({
 		author: "Welcome!",
 		body: "Welcome to the r/Kanye realtime wavy feed!",
 		name: "realtime-intro-connection-message",
-		created: (new Date).getTime(),
-	});
-	socket.emit('comment', introComment);
+		created: (new Date).getTime()/1000,
+	}));
 
 	// Send four most recent (oldest first)
 	collection.find().sort({created: -1}).limit(4).toArray(function(err, docs) {

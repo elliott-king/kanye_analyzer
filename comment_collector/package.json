@@ -1,0 +1,20 @@
+{
+  "name": "comment_collector",
+  "version": "1.0.0",
+  "description": "Collect relevant comments from r/kanye & input them into the db.",
+  "main": "realtime_collector.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "elliott-king",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^3.1.6",
+    "node-emoji": "^1.8.1",
+    "request": "^2.88.0",
+    "snoowrap": "^1.15.2"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
+  }
+}

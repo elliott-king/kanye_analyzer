@@ -2,8 +2,6 @@ const emoji = require('node-emoji');
 var MongoClient = require('mongodb').MongoClient
 	,format = require('util').format
 	, mongoPort = '27017'
-	, collectionName = 'test'
-	, dbName = 'test'
 	, collection;
 
 function isWavy(commentBody) {
@@ -69,11 +67,11 @@ const export_fns = {
 var url = `mongodb://127.0.0.1:${mongoPort}`;
 
 //TODO: should take in dbname & collectionName
-module.exports = function() {
+module.exports = function(dbName='test', collectionName='test') {
 	var promise = MongoClient.connect(url).then(
 		function(client) {
 			collection = client.db(dbName).collection(collectionName);
-			console.log(`Connected to db ${dbName} on port ${mongoPort}.`);
+			console.log(`Connected to db ${dbName} on port ${mongoPort} at ${(new Date).getTime()}`);
 			return export_fns;
 		});
 	return promise;

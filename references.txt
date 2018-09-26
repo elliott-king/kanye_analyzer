@@ -22,3 +22,9 @@ https://mongodb.github.io/node-mongodb-native/3.0/
 https://mongodb.github.io/node-mongodb-native/3.0/api/index.html
 https://docs.mongodb.com/manual/
 https://www.npmjs.com/package/mongodb
+
+Reddit snooper (node)
+ihttps://github.com/JuicyPasta/reddit-snooper
+
+Review anyc & promises in JS/nodejs:
+https://medium.com/@tkssharma/writing-neat-asynchronous-node-js-code-with-promises-async-await-fa8d8b0bcd7c

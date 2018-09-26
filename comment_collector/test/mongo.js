@@ -76,7 +76,7 @@ describe('MongoHandler', function() {
 
 
 
-	describe('#insertIfValid()', function(done) {
+	describe('#insertIfValid()', function() {
 		it('should return false when comment does not contain wavy emoji', function(done) {
 			mongoHandler().then(function(export_fns) {
 				export_fns.insertIfValid(not_wavy).then( function(b) {
@@ -111,5 +111,14 @@ describe('MongoHandler', function() {
 		});
 	});
 
-	//TODO: retrieveRecent()
+	describe('#retrieveRecent()', function(done) {
+		it('return the document in the \'test\' collection', function(done) {
+			mongoHandler().then(function(export_fns) {
+				export_fns.retrieveRecent().then(function(recentArray){
+					assert.ok(recentArray.length == 1);
+					done();
+				});
+			});
+		});
+	});
 });

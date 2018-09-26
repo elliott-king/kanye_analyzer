@@ -62,12 +62,7 @@ const export_fns = {
 		//	throw new // TODO: limit exceeded error?
 		//}
 		// Will be ordered new -> old
-		return collection.find().sort({created: -1}).limit(limit)
-			.toArray(function(err, docs) {
-				assert.equal(err, null);
-				assert.equal(docs.length, limit); // TODO: should be less than or equal
-			});
-		// return docs;
+		return collection.find().sort({created: -1}).limit(limit).toArray()
 	}
 };
 
@@ -80,9 +75,6 @@ module.exports = function() {
 			collection = client.db(dbName).collection(collectionName);
 			console.log(`Connected to db ${dbName} on port ${mongoPort}.`);
 			return export_fns;
-		}, function(err) {
-			console.log(err)
-		}
-	);
+		});
 	return promise;
 }

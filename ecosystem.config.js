@@ -59,7 +59,7 @@ module.exports = {
 		},{
 			name 	: "kanye-realism",
 			script  : "./kanye_realtime/kanye-realism.js",
-			args    : "--serverPort=8080 --dbname=kanye-test --collName=test",
+			args    : "--serverPort=8080 --dbname=kanye --collName=wavy-comments",
 		}]
 };
 		

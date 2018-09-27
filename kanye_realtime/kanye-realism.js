@@ -53,10 +53,7 @@ snooper.watcher.getCommentWatcher('kanye')
 
 		mongoHandlerPromise.then(function(export_fns) {
 			export_fns.insertIfValid(comment).then(function(b) {
-				if(b){
-					console.log('Inserted: ', comment.data.body);
-					io.emit('comment', JSON.stringify(comment.data));
-				}
+				if(b) io.emit('comment', JSON.stringify(comment.data));
 			});
 		});
 

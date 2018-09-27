@@ -39,8 +39,12 @@ const export_fns = {
 
 		// second, check if comment exists in db
 		return inDatabase(comment_name).then( function(b) {
-			if (b) return false;
+			if (b) {
+				console.log('Already in db: ', comment.data.body, '\nWith id: ', comment.data.name);
+				return false;
+			}
 			return collection.insertOne(comment.data).then(function(insert) {
+				console.log('Inserted: ', comment.data.body, '\nWith id: ', comment.data.name);
 				return true;
 			}, function(err) {
 				console.error('Error with collection insertion: ',err);
@@ -59,8 +63,6 @@ const export_fns = {
 };
 
 var url = `mongodb://127.0.0.1:${mongoPort}`;
-
-//TODO: should take in dbname & collectionName
 module.exports = function(dbName='test', collectionName='test') {
 	var promise = MongoClient.connect(url).then(
 		function(client) {

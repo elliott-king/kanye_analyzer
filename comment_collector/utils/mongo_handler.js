@@ -43,14 +43,8 @@ const export_fns = {
 			return collection.insertOne(comment.data).then(function(insert) {
 				return true;
 			}, function(err) {
-				if (err) {
-					console.error('Error with collection insertion: ',err);
-					return collection.find().toArray()
-					.then( function (array) { 
-						console.log("array: ", array);
-						return false;
-					});
-				}
+				console.error('Error with collection insertion: ',err);
+				return false;
 			});
 		});
 	},

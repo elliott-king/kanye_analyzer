@@ -18,7 +18,7 @@ function createDiv(comment_data) {
     var datePosted = document.createElement("P");
         datePosted.className = "res-date";
         // datePosted.appendChild(document.createTextNode(new Date()));
-	    datePosted.appendChild(document.createTextNode(new Date(comment_data.created * 1000)));
+	    datePosted.appendChild(document.createTextNode(new Date(comment_data.created_utc * 1000)));
         div.appendChild(datePosted);
 
 	var commentBody = document.createElement("P");

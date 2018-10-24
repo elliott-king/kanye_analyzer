@@ -1,5 +1,5 @@
 const redditSnooper = require('reddit-snooper');
-const mongoHandler = require('./utils/mongo_handler.js');
+const mongoHandler = require('../kanye_realtime/src/mongo_handler.js');
 
 const dbname = 'kanye'
 	, collectionName = 'wavy-comments';

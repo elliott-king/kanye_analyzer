@@ -2,7 +2,8 @@
 // https://www.codementor.io/tamizhvendan/beginner-guide-setup-reactjs-environment-npm-babel-6-webpack-du107r9zr
 
 // Command to run: 
-// ./node_modules/.bin/webpack -d
+// npx webpack -d
+// Runs webpack in dev mode
 
 var webpack = require('webpack')
 var path = require('path')

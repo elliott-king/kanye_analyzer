@@ -1,4 +1,4 @@
-var mongoHandler = require('../src/mongo_handler.js')
+var mongoHandler = require('../src/server/mongo_handler.js')
 var assert = require('assert');
 
 const not_wavy = {

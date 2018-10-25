@@ -3,7 +3,7 @@
 const randomInt = require('random-int')
 const sleep = require('sleep');
 const request = require('request');
-const mongoHandler = require('../kanye_realtime/src/mongo_handler.js');
+const mongoHandler = require('../kanye_realtime/src/server/mongo_handler.js');
 
 const args = require('minimist')(process.argv.slice(2));
 const {dbname = 'kanye', collectionName = 'wavy-comments'} = args;

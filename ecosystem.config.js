@@ -58,17 +58,11 @@ module.exports = {
 			script  : "./node_test/hello.js",
 		},{
 			name 	: "kanye_backend",
-			script  : "./kanye_realtime/src/index.js",
+			script  : "./kanye_realtime/src/server/index.js",
 			args    : "--serverPort=8080 --dbname=kanye --collName=wavy-comments",
 		},{
 			name 	: "comment_collector",
 			script  : "./comment_collector/realtime_collector.js",
 		}]
-//		},{
-//			name 		: "realism-dev",
-//			script 		: "./kanye_realtime/kanye_realism/src/index.js",
-//			watch 		: "true",
-//			ignore_watch: ["node_modules"]		
-//		}]
 };
 		

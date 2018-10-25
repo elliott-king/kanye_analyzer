@@ -10,7 +10,7 @@ const mongoHandler = require('./mongo_handler.js');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
-app.use(express.static(__dirname + '/../public'));
+app.use(express.static(__dirname + '/../client'));
 
 var args = require('minimist')(process.argv.slice(2));
 const {serverPort = 8080, dbname = 'kanye', collName = 'wavy-comments'} = args;

@@ -15,17 +15,20 @@
     "mongodb": "^3.0.10",
     "node-emoji": "^1.8.1",
     "path": "^0.12.7",
+    "react": "^16.6.0",
+    "react-dom": "^16.6.0",
     "reddit-snooper": "^1.0.1",
     "socket.io": "^2.1.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "ajv": "^6.5.4",
+    "babel-loader": "^8.0.4",
     "mocha": "^5.2.0",
+    "webpack": "^4.23.1",
     "webpack-cli": "^3.1.2"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+  }
 }

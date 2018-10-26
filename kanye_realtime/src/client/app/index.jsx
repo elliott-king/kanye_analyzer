@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 function Comment(props) {
 	return (
-		<div className="comment" key={props.commentId}>
+		<div className="comment" id={props.commentId} key={props.commentId}>
 			<p className="comment-author">{props.author}</p>
 			<p className="comment-date">{new Date(props.datePosted * 1000).toString()}</p>
 			<p className="comment-body">{props.body}</p>
@@ -25,13 +25,18 @@ class CommentContainer extends React.Component {
 			console.log('Connected to server');
 		});
 		this.sock.on('comment', (comment) => {
+			console.log('Comment queue: ');
+			for (var i = 0; i < this.state.commentQueue; i++) {
+				comment = this.state.commentQueue;
+				console.log(comment.name);
+			}
 			this.addComment(JSON.parse(comment));
 		});
 	}
 
 	renderComment(commentId, author, datePosted, body) {
 		return (
-			<Comment key={commentId} author={author} datePosted={datePosted} body={body}/>
+			<Comment commentId={commentId} author={author} datePosted={datePosted} body={body}/>
 		);
 	}
 

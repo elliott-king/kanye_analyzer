@@ -25,18 +25,18 @@ class CommentContainer extends React.Component {
 			console.log('Connected to server');
 		});
 		this.sock.on('comment', (comment) => {
-			console.log('Comment queue: ');
-			for (var i = 0; i < this.state.commentQueue; i++) {
-				comment = this.state.commentQueue;
-				console.log(comment.name);
-			}
 			this.addComment(JSON.parse(comment));
 		});
 	}
 
 	renderComment(commentId, author, datePosted, body) {
 		return (
-			<Comment commentId={commentId} author={author} datePosted={datePosted} body={body}/>
+			<Comment 
+				key={commentId} 
+				commentId={commentId} 
+				author={author} 
+				datePosted={datePosted} 
+				body={body}/>
 		);
 	}
 
@@ -61,26 +61,17 @@ class CommentContainer extends React.Component {
 	addComment(comment) {
 
 		// Keep immutable for React
-		var newCommentQueue;
+		var newCommentQueue = this.state.commentQueue.slice();
 
 		// Limit queue to length 5
-		if (this.state.commentQueue.length ===5) {
-			newCommentQueue = this.state.commentQueue.slice(1);
-		}
-		else {
-			newCommentQueue = this.state.commentQueue.slice();
+		if (this.state.commentQueue.length === 5) {
+			newCommentQueue.shift();
 		}
 
 		newCommentQueue.push(comment);
 		this.setState({commentQueue: newCommentQueue});
 	}
 }
-
-
-// ReactDOM.render(
-//   <Game />,
-//     document.getElementById('root')
-//     );
      
 ReactDOM.render(
 	<CommentContainer />,

@@ -4,6 +4,7 @@
 // Command to run: 
 // npx webpack -d
 // Runs webpack in dev mode
+// TODO: handle production mode
 
 var webpack = require('webpack')
 var path = require('path')

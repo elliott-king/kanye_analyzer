@@ -60,9 +60,9 @@ module.exports = {
 			name 	: "kanye_backend",
 			script  : "./kanye_realtime/src/server/index.js",
 			args    : "--serverPort=8080 --dbname=kanye --collName=wavy-comments",
-		},{
-			name 	: "comment_collector",
-			script  : "./comment_collector/realtime_collector.js",
+//		},{
+//			name 	: "comment_collector",
+//			script  : "./comment_collector/realtime_collector.js",
 		}]
 };
 		

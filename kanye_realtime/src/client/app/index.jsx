@@ -64,7 +64,7 @@ class CommentContainer extends React.Component {
 		var newCommentQueue = this.state.commentQueue.slice();
 
 		// Limit queue to length 5
-		if (this.state.commentQueue.length === 5) {
+		while (newCommentQueue.length >= 5) {
 			newCommentQueue.shift();
 		}
 

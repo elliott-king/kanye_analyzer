@@ -44,7 +44,7 @@ const export_fns = {
 				return false;
 			}
 			return collection.insertOne(comment.data).then(function(insert) {
-				console.log('Inserted: ', comment.data.body, '\nWith id: ', comment.data.name, ' at time: ', new Date());
+				console.log('Inserted: ', comment.data.body, ' with id: ', comment.data.name, ' at time: ', new Date());
 				return true;
 			}, function(err) {
 				console.error('Error with collection insertion: ',err);

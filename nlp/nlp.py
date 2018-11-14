@@ -1,4 +1,7 @@
 import nltk
+import mongo_handler
+import constants
+import pprint
 
 # Taken from nltk book:
 # http://www.nltk.org/book/ch05.html
@@ -29,15 +32,52 @@ def get_features(comment):
 
     features = {}
     features['length'] = len(tokens) # TODO: also counts punctuation
-    features['no_parent_comments'] = comment['link_id'] == comment['parent_id']
+    features['top_level_comment'] = comment['link_id'] == comment['parent_id']
     features['is_submitter'] = comment['is_submitter']
     features['num_ne'] = 0 # number of named entities
     for word in tokens:
-        features['contains ({})'.format(word.lower())] = True
+        # mongo cannot handle 'contains(.)' as a field
+        if word != '.':
+            features['contains ({})'.format(word.lower())] = True
 
     for chunk in entities:
         if hasattr(chunk, 'label'):
             features['num_ne'] += 1
     features['ne_ratio'] = features['num_ne'] / len(tokens)
+    # TODO: consider also using neighbor words around 'wavy'
 
     return features
+
+# generate train data by hand
+if __name__ == '__main__':
+
+    categories = constants.CATEGORIES
+
+    command_cursor = mongo_handler.get_noncategorized_comments(limit=5)
+    for comment in command_cursor:
+        s = '\nThe categories are:\n' + '\n'.join(
+                ['{}: {}'.format(i, v) for i, v in enumerate(categories)])
+        print(s + '\n')
+        features = get_features(comment)
+        features_no_contains = {}
+        for feature in features:
+            if 'contains' not in feature:
+                features_no_contains[feature] = features[feature]
+        print('==============================================================')
+        print(comment['body'])
+        print('Created (utc): ', comment['created_utc'])
+        print('link: ' +  'reddit.com' + comment ['permalink'])
+        pprint.pprint(features_no_contains)
+        category = input('Category? ')
+        while not category or int(category) >= len(categories) or int(category) < 0:
+            print(
+                    'Invalid category selection.', 
+                    'Please use a number between 0 and', 
+                    len(categories) - 1)
+            category = input('Category? ')
+
+        print('Category chosen:', categories[int(category)])
+        name = comment['name']
+        category = categories[int(category)]
+        mongo_handler.update_comment_category(name, category=category, features=features)
+

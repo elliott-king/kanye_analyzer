@@ -7,6 +7,7 @@ import time
 client = MongoClient()
 db = client.kanye
 comments = db['wavy-comments']
+categories = db['wavy-categories']
 
 def short_comment(comment):
     ret = {}
@@ -33,6 +34,24 @@ def get_recent_comments(limit=10, pretty=True):
     for comment in comments.find().sort('created_utc', pymongo.DESCENDING).limit(limit):
         ret.append(comment if not pretty else short_comment(comment))
     return ret
+
+### Following handle comment categories
+
+def is_updated(comment_name):
+    comment = categories.find_one({'name': comment_name})
+    return bool(comment)
+
+def update_comment_category(comment_name, category, features):
+    # TODO: should overwrite old one
+    categories.find_one_and_update(
+            {'name': comment_name},
+            {
+                'name': comment_name,
+                'category': category,
+                'features': features
+            },
+            upsert=True)
+
 
 if __name__ == "__main__":
     pprint.pprint(get_recent_comments())

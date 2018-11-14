@@ -8,7 +8,7 @@ OUR_TEST_COMMENT =  {
         'name': 't1_e8z9okx'}
 
 
-class MongoHandlerTest(unittest.TestCase):
+class CommentsDBTest(unittest.TestCase):
 
     def testSimple(self):
         comment = mongo_handler.get_comment('t1_e8zrokv', pretty=False)
@@ -21,6 +21,12 @@ class MongoHandlerTest(unittest.TestCase):
     def testBodyOnly(self):
         comment = mongo_handler.body_only(mongo_handler.get_comment('t1_e8z9okx'))
         self.assertEqual(comment, OUR_TEST_COMMENT['body'])
+
+class CategoriesDBTest(unittest.TestCase):
+    
+    def testIn(self):
+        # TODO: include comment existing in database
+        self.assertFalse(mongo_handler.is_updated('zarglbargl'))
 
 if __name__ == '__main__':
     unittest.main()

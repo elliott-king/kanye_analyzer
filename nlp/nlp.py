@@ -36,14 +36,15 @@ def get_features(comment):
     features['is_submitter'] = comment['is_submitter']
     features['num_ne'] = 0 # number of named entities
     for word in tokens:
-        # mongo cannot handle 'contains(.)' as a field
-        if word != '.':
+        # mongo cannot handle 'contains(.)', or anything with a period, as a field
+        if '.' not in word:
             features['contains ({})'.format(word.lower())] = True
 
     for chunk in entities:
         if hasattr(chunk, 'label'):
             features['num_ne'] += 1
     features['ne_ratio'] = features['num_ne'] / len(tokens)
+    # TODO: use number of distinct words
     # TODO: consider also using neighbor words around 'wavy'
 
     return features
@@ -52,8 +53,9 @@ def get_features(comment):
 if __name__ == '__main__':
 
     categories = constants.CATEGORIES
+    positivity_options = constants.POSITIVITY
 
-    command_cursor = mongo_handler.get_noncategorized_comments(limit=5)
+    command_cursor = mongo_handler.get_noncategorized_comments(limit=100)
     for comment in command_cursor:
         s = '\nThe categories are:\n' + '\n'.join(
                 ['{}: {}'.format(i, v) for i, v in enumerate(categories)])
@@ -66,6 +68,7 @@ if __name__ == '__main__':
         print('==============================================================')
         print(comment['body'])
         print('Created (utc): ', comment['created_utc'])
+        print('Fullname:', comment['name'])
         print('link: ' +  'reddit.com' + comment ['permalink'])
         pprint.pprint(features_no_contains)
         category = input('Category? ')
@@ -79,5 +82,22 @@ if __name__ == '__main__':
         print('Category chosen:', categories[int(category)])
         name = comment['name']
         category = categories[int(category)]
-        mongo_handler.update_comment_category(name, category=category, features=features)
+
+        p = '\nThe positivity options are:\n' + '\n'.join(
+                ['{}: {}'.format(i, v) for i, v in enumerate(positivity_options)])
+        print(p)
+        positivity = input('Positivity? ')
+        while (not positivity 
+               or int(positivity) >= len(positivity_options) 
+               or int(positivity) < 0):
+            print(
+                    'Invalid category selection.', 
+                    'Please use a number between 0 and', 
+                    len(positivity_options) - 1)
+            positivity = input('Positivity?')
+        print('This comment is:', positivity_options[int(positivity)])
+        positivity = positivity_options[int(positivity)]
+
+        mongo_handler.update_comment_category(name, category=category, 
+                feature_dict=features, is_wavy=positivity)
 

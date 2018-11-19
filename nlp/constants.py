@@ -1,14 +1,24 @@
 # Positive or negative use
-IS_WAVY = 'wavy'
-NOT_WAVY = 'not wavy'
+POSITIVITY = [
+        'ambiguous',
+        'wavy',
+        'not_wavy',
+        ]
 # Also can use both for one thing
 
 # Categorization: who/what is being referred to as wavy?
-MISC = 'misc'
-POSTER_WITHIN_THREAD = 'poster' # TODO: add extension for OP only
-POSTER_OP = 'op'
-EXTERNAL_NOUN = 'external'
-CONVERSATION = 'conversation'
-THREAD_SUBJECT = 'link'
+CATEGORIES = [
+    'misc',
+    'poster', 
+    'op',
+    'link',
+    'this_sub', # maybe merge in with 'poster'
+    'external_person', # external person
+    'external_object',
+    'external_concept', # supporting sexual assaulters is unwavy
+    'self',
+    'kanye',
+    'copypasta',
+    'request', # 'keep it wavy' NOTE that the person directed @ may already be wavy
+]
 
-CATEGORIES = [MISC, POSTER_OP, POSTER_WITHIN_THREAD, EXTERNAL_NOUN, CONVERSATION, THREAD_SUBJECT]

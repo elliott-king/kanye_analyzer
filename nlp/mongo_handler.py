@@ -9,6 +9,7 @@ client = MongoClient()
 db = client.kanye
 comments = db['wavy-comments']
 categories = db['wavy-categories']
+features = db['wavy-features']
 
 def short_comment(comment):
     ret = {}
@@ -42,17 +43,19 @@ def is_updated(comment_name):
     comment = categories.find_one({'name': comment_name})
     return bool(comment)
 
-def update_comment_category(comment_name, category=None, features=None, is_wavy=''):
+def update_comment_category(comment_name, category=None, feature_dict=None, is_wavy=None):
     # TODO: compress into one statement?
+    # TODO: make this ACID compliant (both should fail or succeed together)
     if category:
         categories.find_one_and_update(
                 {'name': comment_name},
                 {'$set': {'category': category}},
                 upsert=True)
-    if features:
-        categories.find_one_and_update(
+    if feature_dict:
+        feature_dict['name'] = comment_name
+        features.find_one_and_replace(
                 {'name': comment_name},
-                {'$set': {'features': features}},
+                feature_dict,
                 upsert=True)
     if is_wavy:
         categories.find_one_and_update(

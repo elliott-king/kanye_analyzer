@@ -66,7 +66,6 @@ def update_comment_category(comment_name, category=None, feature_dict=None, is_w
 # returns cursor
 def get_noncategorized_comments(limit=10):
     # join logic taken from: https://stackoverflow.com/questions/8772936
-    #comments = comments.find().sort('created_utc', pymongo.ASCENDING).limit(limit)
     pipeline = [
         {'$lookup' : {
             'from': 'wavy-categories',
@@ -75,7 +74,7 @@ def get_noncategorized_comments(limit=10):
             'as': 'matched_docs',
         }},
         {'$match': {'matched_docs': {'$eq': []}}},
-        {'$sort': SON([('created_utc', 1)])},
+        {'$sort': SON([('created_utc', -1)])},
         {'$limit': limit}
     ]
     command_cursor = comments.aggregate(pipeline)

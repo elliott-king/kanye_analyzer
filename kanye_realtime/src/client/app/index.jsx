@@ -7,7 +7,7 @@ function Comment(props) {
 		<div className="comment" id={props.commentId} key={props.commentId}>
 			<p className="comment-author">{props.author}</p>
 			<p className="comment-date">{new Date(props.datePosted * 1000).toString()}</p>
-			<p className="comment-body">{props.body}</p>
+			<p className="comment-body"><a href={props.link}>{props.body}</a></p>
 		</div>
 	);
 }
@@ -29,26 +29,29 @@ class CommentContainer extends React.Component {
 		});
 	}
 
-	renderComment(commentId, author, datePosted, body) {
+	renderComment(commentId, author, datePosted, body, link) {
 		return (
 			<Comment 
 				key={commentId} 
 				commentId={commentId} 
 				author={author} 
 				datePosted={datePosted} 
-				body={body}/>
+				body={body}
+				link={link}/>
 		);
 	}
 
 	render() {
 		let commentArray = [];
+		// TODO: add link to comment
 		for (var i = 0; i < this.state.commentQueue.length; i++){
 			var comment = this.state.commentQueue[i];
 			commentArray.push(this.renderComment(
 				comment.name, 
 				comment.author, 
 				comment.created_utc, 
-				comment.body));
+				comment.body,
+				"https://www.reddit.com" + comment.permalink));
 		}
 		return (
 			<div className="comment-container">

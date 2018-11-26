@@ -30,7 +30,8 @@ io.on('connection', socket => {
 		body: "Welcome to the r/Kanye realtime wavy feed!",
 		name: "realtime-intro-connection-message",
 		created: (new Date).getTime()/1000,
-		created_utc: (new Date).getTime()/1000
+		created_utc: (new Date).getTime()/1000,
+		permalink: "/r/Kanye"
 	}));
 
 	// Send four most recent (oldest first)

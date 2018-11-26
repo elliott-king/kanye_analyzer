@@ -25,6 +25,7 @@ import pprint
 
 def get_features(comment):
     body = comment['body']
+    # TODO: this does not break apart multiple emojis (😭🌊 will not be broken up)
     tokens = nltk.word_tokenize(body)
     tagged = nltk.pos_tag(tokens) # list of tuples
     # https://stackoverflow.com/questions/48660547
@@ -35,10 +36,17 @@ def get_features(comment):
     features['top_level_comment'] = comment['link_id'] == comment['parent_id']
     features['is_submitter'] = comment['is_submitter']
     features['num_ne'] = 0 # number of named entities
+
+    unique_token_count = 0
     for word in tokens:
         # mongo cannot handle 'contains(.)', or anything with a period, as a field
         if '.' not in word:
-            features['contains ({})'.format(word.lower())] = True
+            s = 'contains ({})'.format(word.lower())
+            if s not in features:
+                unique_token_count += 1
+                features[s] = True
+    features['pcnt_unique'] = int(float(unique_token_count) 
+            / float(len(tokens)) * 100)
 
     for chunk in entities:
         if hasattr(chunk, 'label'):

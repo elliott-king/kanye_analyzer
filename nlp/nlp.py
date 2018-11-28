@@ -1,3 +1,4 @@
+import emoji
 import nltk
 import mongo_handler
 import constants
@@ -6,12 +7,9 @@ import pprint
 # Taken from nltk book:
 # http://www.nltk.org/book/ch05.html
 
-
-
 # tokenize string:           nltk.word_tokenize(s)
 # show part of speech (pos): nltk.pos_tag(tokenized_string)
 # view documentation of tag: nltk.help.upenn_tagset('TOKEN_NAME')
-
 
 # TODO: identify dialogue act types: section 6.2.2
 # TODO: how does pos_tag work? Is it a dict, or does it refer to the order of the tokens?
@@ -36,6 +34,7 @@ def get_features(comment):
     features['top_level_comment'] = comment['link_id'] == comment['parent_id']
     features['is_submitter'] = comment['is_submitter']
     features['num_ne'] = 0 # number of named entities
+    features['usermention'] = 'u/' in body
 
     unique_token_count = 0
     for word in tokens:
@@ -63,7 +62,7 @@ if __name__ == '__main__':
     categories = constants.CATEGORIES
     positivity_options = constants.POSITIVITY
 
-    command_cursor = mongo_handler.get_noncategorized_comments(limit=100)
+    command_cursor = mongo_handler.get_noncategorized_comments(limit=50)
     for comment in command_cursor:
         s = '\nThe categories are:\n' + '\n'.join(
                 ['{}: {}'.format(i, v) for i, v in enumerate(categories)])
@@ -106,6 +105,6 @@ if __name__ == '__main__':
         print('This comment is:', positivity_options[int(positivity)])
         positivity = positivity_options[int(positivity)]
 
-        mongo_handler.update_comment_category(name, category=category, 
-                feature_dict=features, is_wavy=positivity)
+        mongo_handler.update_comment_category(
+                name, category=category, is_wavy=positivity)
 

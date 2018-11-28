@@ -31,27 +31,34 @@ def get_features(comment):
 
     features = {}
     features['length'] = len(tokens) # TODO: also counts punctuation
-    features['top_level_comment'] = comment['link_id'] == comment['parent_id']
-    features['is_submitter'] = comment['is_submitter']
-    features['num_ne'] = 0 # number of named entities
-    features['usermention'] = 'u/' in body
+    features['top level comment'] = comment['link_id'] == comment['parent_id']
+    features['is submitter'] = comment['is_submitter']
+    features['num ne'] = 0 # number of named entities
+    features['mentions user'] = 'u/' in body
 
     unique_token_count = 0
     for word in tokens:
         # mongo cannot handle 'contains(.)', or anything with a period, as a field
         if '.' not in word:
+            # nltk will not split up emojis that have no space between them
+            emoji_list = emoji.emoji_lis(word)
+            if emoji_list:
+                for d in emoji_list:
+                    emoji_s = 'emoji ({})'.format(d['emoji'])
+                    features[emoji_s] = True
+
             s = 'contains ({})'.format(word.lower())
             if s not in features:
+                # No need to worry about individual emoji count for this.
                 unique_token_count += 1
                 features[s] = True
-    features['pcnt_unique'] = int(float(unique_token_count) 
+    features['pcnt unique'] = int(float(unique_token_count) 
             / float(len(tokens)) * 100)
 
     for chunk in entities:
         if hasattr(chunk, 'label'):
-            features['num_ne'] += 1
-    features['ne_ratio'] = features['num_ne'] / len(tokens)
-    # TODO: use number of distinct words
+            features['num ne'] += 1
+    features['ne ratio'] = features['num ne'] / len(tokens)
     # TODO: consider also using neighbor words around 'wavy'
 
     return features

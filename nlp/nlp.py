@@ -63,6 +63,52 @@ def get_features(comment):
 
     return features
 
+def request_input_on_cursor(comment):
+    s = '\nThe categories are:\n' + '\n'.join(
+            ['{}: {}'.format(i, v) for i, v in enumerate(categories)])
+    print(s + '\n')
+    features = get_features(comment)
+    features_no_contains = {}
+    for feature in features:
+        if 'contains' not in feature:
+            features_no_contains[feature] = features[feature]
+    print('==============================================================')
+    print(comment['body'])
+    print('Created (utc): ', comment['created_utc'])
+    print('Fullname:', comment['name'])
+    print('link: ' +  'reddit.com' + comment ['permalink'])
+    pprint.pprint(features_no_contains)
+    category = input('Category? ')
+    while not category or int(category) >= len(categories) or int(category) < 0:
+        print(
+                'Invalid category selection.', 
+                'Please use a number between 0 and', 
+                len(categories) - 1)
+        category = input('Category? ')
+
+    print('Category chosen:', categories[int(category)])
+    name = comment['name']
+    category = categories[int(category)]
+
+    p = '\nThe positivity options are:\n' + '\n'.join(
+            ['{}: {}'.format(i, v) for i, v in enumerate(positivity_options)])
+    print(p)
+    positivity = input('Positivity? ')
+    while (not positivity 
+           or int(positivity) >= len(positivity_options) 
+           or int(positivity) < 0):
+        print(
+                'Invalid category selection.', 
+                'Please use a number between 0 and', 
+                len(positivity_options) - 1)
+        positivity = input('Positivity?')
+    print('This comment is:', positivity_options[int(positivity)])
+    positivity = positivity_options[int(positivity)]
+
+    mongo_handler.update_comment_category(
+            name, category=category, is_wavy=positivity)
+
+
 # generate train data by hand
 if __name__ == '__main__':
 
@@ -71,47 +117,11 @@ if __name__ == '__main__':
 
     command_cursor = mongo_handler.get_noncategorized_comments(limit=50)
     for comment in command_cursor:
-        s = '\nThe categories are:\n' + '\n'.join(
-                ['{}: {}'.format(i, v) for i, v in enumerate(categories)])
-        print(s + '\n')
-        features = get_features(comment)
-        features_no_contains = {}
-        for feature in features:
-            if 'contains' not in feature:
-                features_no_contains[feature] = features[feature]
-        print('==============================================================')
-        print(comment['body'])
-        print('Created (utc): ', comment['created_utc'])
-        print('Fullname:', comment['name'])
-        print('link: ' +  'reddit.com' + comment ['permalink'])
-        pprint.pprint(features_no_contains)
-        category = input('Category? ')
-        while not category or int(category) >= len(categories) or int(category) < 0:
-            print(
-                    'Invalid category selection.', 
-                    'Please use a number between 0 and', 
-                    len(categories) - 1)
-            category = input('Category? ')
+        request_input_on_cursor(comment)
 
-        print('Category chosen:', categories[int(category)])
-        name = comment['name']
-        category = categories[int(category)]
-
-        p = '\nThe positivity options are:\n' + '\n'.join(
-                ['{}: {}'.format(i, v) for i, v in enumerate(positivity_options)])
-        print(p)
-        positivity = input('Positivity? ')
-        while (not positivity 
-               or int(positivity) >= len(positivity_options) 
-               or int(positivity) < 0):
-            print(
-                    'Invalid category selection.', 
-                    'Please use a number between 0 and', 
-                    len(positivity_options) - 1)
-            positivity = input('Positivity?')
-        print('This comment is:', positivity_options[int(positivity)])
-        positivity = positivity_options[int(positivity)]
-
-        mongo_handler.update_comment_category(
-                name, category=category, is_wavy=positivity)
+    # not actually a command cursor
+#    command_cursor = mongo_handler.get_link_comments() 
+#    for category in command_cursor:
+#        comment = mongo_handler.get_comment(category['name'], pretty=False)
+#        request_input_on_cursor(comment)
 

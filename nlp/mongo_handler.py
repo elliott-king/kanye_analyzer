@@ -63,7 +63,7 @@ def update_comment_category(comment_name, category=None, is_wavy=None):
                 {'$set': {'is_wavy': is_wavy}},
                 upsert=True)
 
-# returns cursor
+# returns command cursor
 def get_noncategorized_comments(limit=10):
     # join logic taken from: https://stackoverflow.com/questions/8772936
     pipeline = [
@@ -79,6 +79,12 @@ def get_noncategorized_comments(limit=10):
     ]
     command_cursor = comments.aggregate(pipeline)
     return command_cursor
+
+# NOTE: if a user refers to an external object, we are considering it external 
+# (even if the user is sort of referring to the link)
+def get_link_comments():
+    cursor = categories.find({"category": "link"})
+    return cursor
 
 if __name__ == "__main__":
     pprint.pprint(get_recent_comments())

@@ -1,10 +1,15 @@
+# collections for mongodb
+# TODO change name of collections in mongodb
+COMMENTS = 'wavy-comments'
+TRAIN_CATEGORIES = 'wavy-categories'
+
 # Positive or negative use
+# Also can use both for one thing
 POSITIVITY = [
         'ambiguous',
         'wavy',
         'not_wavy',
-        ]
-# Also can use both for one thing
+]
 
 # Categorization: who/what is being referred to as wavy?
 CATEGORIES = [
@@ -14,11 +19,9 @@ CATEGORIES = [
     'link',
     'this_sub', # maybe merge in with 'poster'
     'external_person', # external person
-    'external_object',
-    'external_concept', # supporting sexual assaulters is unwavy
+    'external_object', # merged external_concepts into this
     'self',
     'kanye',
     'copypasta',
-    'request', # 'keep it wavy' NOTE that the person directed @ may already be wavy
 ]
 

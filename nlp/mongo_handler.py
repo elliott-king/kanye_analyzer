@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from bson.son import SON
+import constants
 import pymongo
 import pprint
 import nltk # natural language toolkit
@@ -7,9 +8,8 @@ import time
 
 client = MongoClient()
 db = client.kanye
-comments = db['wavy-comments']
-categories = db['wavy-categories']
-features = db['wavy-features']
+comments = db[constants.COMMENTS]
+categories = db[constants.TRAIN_CATEGORIES]
 
 def short_comment(comment):
     ret = {}
@@ -51,12 +51,6 @@ def update_comment_category(comment_name, category=None, is_wavy=None):
                 {'name': comment_name},
                 {'$set': {'category': category}},
                 upsert=True)
-#    if feature_dict:
-#        feature_dict['name'] = comment_name
-#        features.find_one_and_replace(
-#                {'name': comment_name},
-#                feature_dict,
-#                upsert=True)
     if is_wavy:
         categories.find_one_and_update(
                 {'name': comment_name},
@@ -68,7 +62,7 @@ def get_noncategorized_comments(limit=10):
     # join logic taken from: https://stackoverflow.com/questions/8772936
     pipeline = [
         {'$lookup' : {
-            'from': 'wavy-categories',
+            'from': constants.TRAIN_CATEGORIES,
             'localField': 'name',
             'foreignField': 'name',
             'as': 'matched_docs',
@@ -80,11 +74,45 @@ def get_noncategorized_comments(limit=10):
     command_cursor = comments.aggregate(pipeline)
     return command_cursor
 
+# all categorized comments, and their categories
+def get_categorized_comments():
+    return categories.find({})
+#    pipeline = [
+#            {'$lookup': {
+#                'from': constants.TRAIN_CATEGORIES,
+#                'localField': 'name',
+#                'foreignField': 'name',
+#                'as': 'matched_docs',
+#            }}
+#    ]
+#    command_cursor = comments.aggregate(pipeline)
+#    return command_cursor
+
+def get_positivity_categorized_comments():
+    return categories.find({'is_wavy': {'$exists': True}})
+
 # NOTE: if a user refers to an external object, we are considering it external 
 # (even if the user is sort of referring to the link)
 def get_link_comments():
     cursor = categories.find({"category": "link"})
     return cursor
+
+def get_count(category):
+    return categories.find({"category": category}).count()
+
+def categories_counts():
+    metrics = {}
+    running_sum = 0
+    for category in constants.CATEGORIES:
+        count = get_count(category)
+        metrics[category] = count
+        running_sum += count
+    
+    for category in metrics:
+        val = metrics[category]
+        metrics[category] = (val, int(float(val)/float(running_sum) * 100))
+    return metrics
+        
 
 if __name__ == "__main__":
     pprint.pprint(get_recent_comments())

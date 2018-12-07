@@ -40,6 +40,7 @@ def get_features(comment):
     for word in tokens:
         # mongo cannot handle 'contains(.)', or anything with a period, as a field
         if '.' not in word:
+            
             # nltk will not split up emojis that have no space between them
             emoji_list = emoji.emoji_lis(word)
             if emoji_list:
@@ -52,8 +53,14 @@ def get_features(comment):
                 # No need to worry about individual emoji count for this.
                 unique_token_count += 1
                 features[s] = True
+
     features['pcnt unique'] = int(float(unique_token_count) 
             / float(len(tokens)) * 100)
+
+    # It is useful to know if the 🚫 emoji is present
+    features['emoji ({})'.format(emoji.emojize(
+        "no_entry_sign", use_aliases=True))] = emoji.emojize(
+            "no_entry_sign", use_aliases=True) in comment['body']
 
     for chunk in entities:
         if hasattr(chunk, 'label'):
@@ -62,6 +69,53 @@ def get_features(comment):
     # TODO: consider also using neighbor words around 'wavy'
 
     return features
+
+def comments_with_category():
+    cursor = mongo_handler.get_categorized_comments()
+    pairs = [
+        (
+            # mongo_handler.get_comment(category['name']),
+            mongo_handler.get_comment(category['name'], pretty=False),
+            category['category']
+        ) for category in cursor]
+    return pairs
+
+def comments_with_positivity():
+    cursor = mongo_handler.get_positivity_categorized_comments()
+    pairs = [
+        (
+            # mongo_handler.get_comment(category['name']),
+            mongo_handler.get_comment(category['name'], pretty=False),
+            category['is_wavy']
+        ) for category in cursor]
+    return pairs
+
+def featureset(categorized_comments):
+    # Note that 'category' can be either positivity, or one of the subject
+    # categories
+    return [(get_features(comment), category) 
+            for (comment, category) in categorized_comments]
+
+def category_metrics_display():
+    metrics = mongo_handler.categories_counts()
+    total = 0
+    s = ""
+    for category in metrics:
+        count, pct = metrics[category]
+        total += count
+        count, pct = str(count), str(pct)
+
+        category = category + ' ' * (15 - len(category))
+        # Make 'count' three characters. TODO: does not scale
+        count = ' ' * (3 - len(count)) + count
+        if len(pct) < 2:
+            pct = ' ' + pct
+        
+        s += 'CATEGORY: {}    COUNT: {}    PCT: {}\n'.format(
+                category, count, pct)
+    s += 'TOTAL: {}'.format(total)
+    return s
+        
 
 def request_input_on_cursor(comment):
     s = '\nThe categories are:\n' + '\n'.join(

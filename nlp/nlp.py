@@ -3,9 +3,25 @@ import nltk
 import mongo_handler
 import constants
 import pprint
+import random
 
 # Taken from nltk book:
 # http://www.nltk.org/book/ch05.html
+
+'''
+Usage:
+
+Call from command line to classify 100 comments.
+
+python cli:
+    import nlp
+    import nltk
+
+    test, train = nlp.get_test_train_sets_positivity()
+    classifier = nltk.NaiveBayesClassifier.train(train)
+    nltk.classify.accuracy(classifier, test)
+    classifier.show_most_informative_features()
+'''
 
 # tokenize string:           nltk.word_tokenize(s)
 # show part of speech (pos): nltk.pos_tag(tokenized_string)
@@ -30,42 +46,65 @@ def get_features(comment):
     entities = nltk.chunk.ne_chunk(tagged) 
 
     features = {}
-    features['length'] = len(tokens) # TODO: also counts punctuation
+    # NaiveBayes cannot take non-binary values. Must be binned. Ch6 5.3
+    # features['length'] = len(tokens) 
+    l = len(tokens)
+    if l < 3:
+        features['short'] = True
+    elif l < 15:
+        features['mid-length'] = True
+    else:
+        features['long'] = True
+
     features['top level comment'] = comment['link_id'] == comment['parent_id']
-    features['is submitter'] = comment['is_submitter']
-    features['num ne'] = 0 # number of named entities
+    features['is OP'] = comment['is_submitter']
     features['mentions user'] = 'u/' in body
 
     unique_token_count = 0
-    for word in tokens:
-        # mongo cannot handle 'contains(.)', or anything with a period, as a field
-        if '.' not in word:
-            
-            # nltk will not split up emojis that have no space between them
-            emoji_list = emoji.emoji_lis(word)
-            if emoji_list:
-                for d in emoji_list:
-                    emoji_s = 'emoji ({})'.format(d['emoji'])
-                    features[emoji_s] = True
+#    for word in tokens:
+#        # mongo cannot handle 'contains(.)', or anything with a period, as a field
+#        if '.' not in word:
+#            
+#            # nltk will not split up emojis that have no space between them
+#            emoji_list = emoji.emoji_lis(word)
+#            if emoji_list:
+#                for d in emoji_list:
+#                    emoji_s = 'emoji ({})'.format(d['emoji'])
+#                    features[emoji_s] = True
 
-            s = 'contains ({})'.format(word.lower())
-            if s not in features:
-                # No need to worry about individual emoji count for this.
-                unique_token_count += 1
-                features[s] = True
+#            s = 'contains ({})'.format(word.lower())
+#            if s not in features:
+#                # No need to worry about individual emoji count for this.
+#                unique_token_count += 1
+#                features[s] = True
 
+    # TODO: classifier has no distinction between continuous & discrete
     features['pcnt unique'] = int(float(unique_token_count) 
             / float(len(tokens)) * 100)
 
-    # It is useful to know if the 🚫 emoji is present
-    features['emoji ({})'.format(emoji.emojize(
-        "no_entry_sign", use_aliases=True))] = emoji.emojize(
-            "no_entry_sign", use_aliases=True) in comment['body']
+    # It is useful to know if certain emoji are present
+    useful_emoji = [
+            ":no_entry_sign:",
+            # ":ocean:",
+            ":x:",
+    ]
+    for e in useful_emoji:
+        features['emoji ({})'.format(emoji.emojize(e, use_aliases=True))] \
+            = emoji.emojize(e, use_aliases=True) in comment['body']
 
+    named_entities = 0
     for chunk in entities:
         if hasattr(chunk, 'label'):
-            features['num ne'] += 1
-    features['ne ratio'] = features['num ne'] / len(tokens)
+            # features['num ne'] += 1 no nonbinary features
+            named_entities += 1
+    if named_entities <= 0:
+        features['no ne'] = True
+    elif named_entities < 2:
+        features['one ne'] = True
+    else:
+        features['multiple ne'] = True
+
+    # features['ne ratio'] = features['num ne'] / len(tokens)
     # TODO: consider also using neighbor words around 'wavy'
 
     return features
@@ -95,6 +134,20 @@ def featureset(categorized_comments):
     # categories
     return [(get_features(comment), category) 
             for (comment, category) in categorized_comments]
+
+def get_test_train_sets_positivity():
+    labeled_set = comments_with_positivity()
+    random.shuffle(labeled_set)
+    train_set = nltk.classify.apply_features(get_features, labeled_set[:500])
+    test_set = nltk.classify.apply_features(get_features, labeled_set[500:])
+    return test_set, train_set
+
+def get_test_train_sets_category():
+    labeled_set = comments_with_category()
+    random.shuffle(labeled_set)
+    train_set = nltk.classify.apply_features(get_features, labeled_set[:500])
+    test_set = nltk.classify.apply_features(get_features, labeled_set[500:])
+    return test_set, train_set
 
 def category_metrics_display():
     metrics = mongo_handler.categories_counts()

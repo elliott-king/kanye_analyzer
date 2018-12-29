@@ -84,10 +84,11 @@ def get_features(comment):
     # It is useful to know if certain emoji are present
     useful_emoji = [
             ":no_entry_sign:",
-            ":snow_mountain:",
+            ":mountain:",
             ":fire:",
             ":negative_squared_cross_mark:",
             ":x:",
+            ":no_good:",
     ]
     for e in useful_emoji:
         features['emoji ({})'.format(emoji.emojize(e, use_aliases=True))] \

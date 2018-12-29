@@ -30,7 +30,6 @@ python cli:
 # TODO: identify dialogue act types: section 6.2.2
 # TODO: how does pos_tag work? Is it a dict, or does it refer to the order of the tokens?
 
-
 # Comment useful values:
 # author, body, created, created_utc, parent_id, is_submitter
 # name, id (identifier, identifier with t1_ prefix)
@@ -39,7 +38,9 @@ python cli:
 
 def get_features(comment):
     body = comment['body']
-    # TODO: this does not break apart multiple emojis (😭🌊 will not be broken up)
+    body_lowercase = body.lower()
+
+    # NOTE: does not break up multiple emojis without space between them
     tokens = nltk.word_tokenize(body)
     tagged = nltk.pos_tag(tokens) # list of tuples
     # https://stackoverflow.com/questions/48660547
@@ -47,7 +48,6 @@ def get_features(comment):
 
     features = {}
     # NaiveBayes cannot take non-binary values. Must be binned. Ch6 5.3
-    # features['length'] = len(tokens) 
     l = len(tokens)
     if l < 3:
         features['short'] = True
@@ -60,7 +60,7 @@ def get_features(comment):
     features['is OP'] = comment['is_submitter']
     features['mentions user'] = 'u/' in body
 
-    unique_token_count = 0
+#    unique_token_count = 0
 #    for word in tokens:
 #        # mongo cannot handle 'contains(.)', or anything with a period, as a field
 #        if '.' not in word:
@@ -78,24 +78,27 @@ def get_features(comment):
 #                unique_token_count += 1
 #                features[s] = True
 
-    # TODO: classifier has no distinction between continuous & discrete
-    features['pcnt unique'] = int(float(unique_token_count) 
-            / float(len(tokens)) * 100)
+#    features['pcnt unique'] = int(float(unique_token_count) 
+#            / float(len(tokens)) * 100)
 
     # It is useful to know if certain emoji are present
     useful_emoji = [
             ":no_entry_sign:",
-            # ":ocean:",
+            ":snow_mountain:",
+            ":fire:",
+            ":negative_squared_cross_mark:",
             ":x:",
     ]
     for e in useful_emoji:
         features['emoji ({})'.format(emoji.emojize(e, use_aliases=True))] \
             = emoji.emojize(e, use_aliases=True) in comment['body']
 
+    features['contains \'not\''] = 'not' in body_lowercase
+    features['contains \'unwavy\''] = 'unwavy' in body_lowercase
+
     named_entities = 0
     for chunk in entities:
         if hasattr(chunk, 'label'):
-            # features['num ne'] += 1 no nonbinary features
             named_entities += 1
     if named_entities <= 0:
         features['no ne'] = True
@@ -104,6 +107,7 @@ def get_features(comment):
     else:
         features['multiple ne'] = True
 
+    # classifier cannot handle nonbinary features
     # features['ne ratio'] = features['num ne'] / len(tokens)
     # TODO: consider also using neighbor words around 'wavy'
 
@@ -113,7 +117,6 @@ def comments_with_category():
     cursor = mongo_handler.get_categorized_comments()
     pairs = [
         (
-            # mongo_handler.get_comment(category['name']),
             mongo_handler.get_comment(category['name'], pretty=False),
             category['category']
         ) for category in cursor]
@@ -123,15 +126,12 @@ def comments_with_positivity():
     cursor = mongo_handler.get_positivity_categorized_comments()
     pairs = [
         (
-            # mongo_handler.get_comment(category['name']),
             mongo_handler.get_comment(category['name'], pretty=False),
             category['is_wavy']
         ) for category in cursor]
     return pairs
 
 def featureset(categorized_comments):
-    # Note that 'category' can be either positivity, or one of the subject
-    # categories
     return [(get_features(comment), category) 
             for (comment, category) in categorized_comments]
 
@@ -175,16 +175,16 @@ def request_input_on_cursor(comment):
             ['{}: {}'.format(i, v) for i, v in enumerate(categories)])
     print(s + '\n')
     features = get_features(comment)
-    features_no_contains = {}
-    for feature in features:
-        if 'contains' not in feature:
-            features_no_contains[feature] = features[feature]
+#    features_no_contains = {}
+#    for feature in features:
+#        if 'contains' not in feature:
+#            features_no_contains[feature] = features[feature]
     print('==============================================================')
     print(comment['body'])
     print('Created (utc): ', comment['created_utc'])
     print('Fullname:', comment['name'])
     print('link: ' +  'reddit.com' + comment ['permalink'])
-    pprint.pprint(features_no_contains)
+    pprint.pprint(features)
     category = input('Category? ')
     while not category or int(category) >= len(categories) or int(category) < 0:
         print(
@@ -226,6 +226,7 @@ if __name__ == '__main__':
     for comment in command_cursor:
         request_input_on_cursor(comment)
 
+    # To edit ALL comments with category == 'link'
     # not actually a command cursor
 #    command_cursor = mongo_handler.get_link_comments() 
 #    for category in command_cursor:

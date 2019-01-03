@@ -3,10 +3,13 @@ import ReactDOM from 'react-dom';
 //import '../style.css';
 
 function Comment(props) {
+    let date = new Date(props.datePosted * 1000);
+    date = `${(date.getMonth() + 1).toString().padEnd(2, "0")}/${date.getDate()} \
+${date.getHours()}:${date.getMinutes()}`;
 	return (
 		<div className="comment" id={props.commentId} key={props.commentId}>
 			<p className="comment-author">{props.author}</p>
-			<p className="comment-date">{new Date(props.datePosted * 1000).toString()}</p>
+			<p className="comment-date">{date}</p>
 			<p className="comment-body"><a href={props.link}>{props.body}</a></p>
 		</div>
 	);
@@ -43,8 +46,8 @@ class CommentContainer extends React.Component {
 
 	render() {
 		let commentArray = [];
-		// TODO: add link to comment
-		for (var i = 0; i < this.state.commentQueue.length; i++){
+        for (var i = this.state.commentQueue.length - 1; i >= 0; i--){ 
+//		for (var i = 0; i < this.state.commentQueue.length; i++){
 			var comment = this.state.commentQueue[i];
 			commentArray.push(this.renderComment(
 				comment.name, 
@@ -80,3 +83,4 @@ ReactDOM.render(
 	<CommentContainer />,
 	document.getElementById('realtime-container')
 );
+

@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 function Comment(props) {
     let date = new Date(props.datePosted * 1000);
-    date = `${(date.getMonth() + 1).toString().padEnd(2, "0")}/${date.getDate()} \
+    date = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getDate()} \
 ${date.getHours()}:${date.getMinutes()}`;
 	return (
 		<div className="comment" id={props.commentId} key={props.commentId}>

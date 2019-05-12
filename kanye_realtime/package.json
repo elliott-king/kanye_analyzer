@@ -4,7 +4,8 @@
   "description": "Prints the newest submissions to r/kanye in realtime.",
   "author": "",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "build": "webpack"
   },
   "license": "ISC",
   "dependencies": {

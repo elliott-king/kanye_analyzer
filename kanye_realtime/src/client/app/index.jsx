@@ -1,16 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-//import '../style.css';
+
+//import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Comment(props) {
     let date = new Date(props.datePosted * 1000);
     date = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getDate()} \
 ${date.getHours()}:${date.getMinutes()}`;
 	return (
-		<div className="comment" id={props.commentId} key={props.commentId}>
-			<p className="comment-author">{props.author}</p>
-			<p className="comment-date">{date}</p>
-			<p className="comment-body"><a href={props.link}>{props.body}</a></p>
+		<div className="comment container-fluid" id={props.commentId} key={props.commentId}>
+			<div className="row">
+				<p className="comment-author col-lg">{props.author}</p>
+				<p className="comment-date col-sm">{date}</p>
+			</div>
+			<div className="row">
+				<p className="comment-body"><a href={props.link}>{props.body}</a></p>
+			</div>
 		</div>
 	);
 }

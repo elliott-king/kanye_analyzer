@@ -5,13 +5,10 @@ h1 {
 
 .comment {
     background-color: rgba(45, 45, 45, 0.1);
-    /*padding: 5em, 0, 0, .5em;*/
-    margin: 1em, 0, 1em, 0;
 }
 
 .comment-author {
     font-size: x-large;
-    display: inline;
 }
 
 .comment-body {
@@ -21,19 +18,10 @@ h1 {
 
 .comment-date {
     font-size: x-small;
-    margin-right: 2em;
-    display: inline;
     text-align: right;
-    float: right;
 }
 
 body {
 	font: 14px "Century Gothic", Futura, sans-serif;
-	margin: 20px;
 }
-
-ol, ul {
-	padding-left: 30px;
-}
-
 

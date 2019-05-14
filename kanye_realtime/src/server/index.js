@@ -23,31 +23,30 @@ var snooper = new redditSnooper({
 var mongoHandlerPromise = mongoHandler(dbname, collName);
 
 io.on('connection', socket => {
-	console.log(`Socket ${socket.id} connected.`);
+    console.log(`Socket ${socket.id} connected.`);
 
-	socket.emit('comment', JSON.stringify({
-		author: "Welcome!",
-		body: "Welcome to the r/Kanye realtime wavy feed!",
-		name: "realtime-intro-connection-message",
-		created: (new Date).getTime()/1000,
-		created_utc: (new Date).getTime()/1000,
-		permalink: "/r/Kanye"
-	}));
+    // Send four most recent (oldest first), then send the welcome message.
+    // TODO: order may be out of whack
+    mongoHandlerPromise.then(function(export_fns) {
+        export_fns.retrieveRecent(4).then( function(docsArray) {
+            for (var i = docsArray.length - 1; i >= 0; i--) {
+                socket.emit('comment', JSON.stringify(docsArray[i]));
+            }
+            socket.emit('comment', JSON.stringify({
+                    author: "Welcome!",
+                    body: "Welcome to the r/Kanye realtime wavy feed!",
+                    name: "realtime-intro-connection-message",
+                    created: (new Date).getTime()/1000,
+                    created_utc: (new Date).getTime()/1000,
+                    permalink: "/r/Kanye"
+            }));
+       });
+    }, console.error);
 
-	// Send four most recent (oldest first)
-	// TODO: order may be out of whack
-	mongoHandlerPromise.then(function(export_fns) {
-		export_fns.retrieveRecent(4).then( function(docsArray) {
-			for (var i = docsArray.length - 1; i >= 0; i--) {
-				socket.emit('comment', JSON.stringify(docsArray[i]));
-			}
-		}, console.error);
 
-	});
-
-	socket.on('disconnect', socket => {
-		console.log(`Socket ${socket.id} disconnected.`);
-	});
+    socket.on('disconnect', socket => {
+            console.log(`Socket ${socket.id} disconnected.`);
+    });
 });
 
 snooper.watcher.getCommentWatcher('kanye')

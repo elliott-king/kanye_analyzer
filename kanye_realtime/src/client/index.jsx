@@ -1,24 +1,32 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-//import 'bootstrap';
+import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './style.css';
+
+function formatDate(datePosted) {
+    let date = new Date(datePosted * 1000);
+    let mo = (date.getMonth() + 1).toString().padStart(2, "0");
+    let d = date.getDate().toString();
+    let h = date.getHours().toString().padStart(2, "0");
+    let mi = date.getMinutes().toString().padStart(2, "0");
+    return `${mo}/${d} ${h}:${mi}`;
+}
 
 function Comment(props) {
-    let date = new Date(props.datePosted * 1000);
-    date = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getDate()} \
-${date.getHours()}:${date.getMinutes()}`;
-	return (
-		<div className="comment container-fluid" id={props.commentId} key={props.commentId}>
-			<div className="row">
-				<p className="comment-author col-lg">{props.author}</p>
-				<p className="comment-date col-sm">{date}</p>
-			</div>
-			<div className="row">
-				<p className="comment-body"><a href={props.link}>{props.body}</a></p>
-			</div>
-		</div>
-	);
+    let date = formatDate(props.datePosted);
+    return (
+        <div className="comment-feed container" id={props.commentId} key={props.commentId}>
+            <div className="row">
+                <p className="comment-author col">{props.author}</p>
+                <p className="comment-date col">{date}</p>
+            </div>
+            <div className="row">
+                <p className="comment-body col"><a href={props.link}>{props.body}</a></p>
+            </div>
+        </div>
+    );
 }
 
 class CommentContainer extends React.Component {
@@ -62,7 +70,7 @@ class CommentContainer extends React.Component {
 				"https://www.reddit.com" + comment.permalink));
 		}
 		return (
-			<div className="comment-container">
+			<div className="comment-container container">
 				{commentArray}
 			</div>
 		)

@@ -1,7 +1,10 @@
-h1 {
+.jumbotron {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    margin-bottom: 2rem;
     background-color: rgba(45, 45, 45, 0.1);
-    padding: 2em;
 }
+
 
 .comment {
     background-color: rgba(45, 45, 45, 0.1);

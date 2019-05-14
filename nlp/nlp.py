@@ -94,8 +94,13 @@ def get_features(comment):
         features['emoji ({})'.format(emoji.emojize(e, use_aliases=True))] \
             = emoji.emojize(e, use_aliases=True) in comment['body']
 
-    features['contains \'not\''] = 'not' in body_lowercase
-    features['contains \'unwavy\''] = 'unwavy' in body_lowercase
+    useful_words = [
+            'not',
+            'unwavy',
+            'Kanye'
+    ]
+    for w in useful_words:
+        features['contains \'{}\''.format(w)] = w in body_lowercase
 
     named_entities = 0
     for chunk in entities:

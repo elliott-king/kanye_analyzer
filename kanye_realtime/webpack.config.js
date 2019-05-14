@@ -11,7 +11,7 @@ var BUILD_DIR = (path.resolve(__dirname, 'dist/client'));
 var APP_DIR = (path.resolve(__dirname, 'src/client'));
 
 var config = {
-//  consider adding  mode: 'development',
+    mode: 'development',
     entry: APP_DIR + '/index.jsx', 
     output: {
         path: BUILD_DIR,

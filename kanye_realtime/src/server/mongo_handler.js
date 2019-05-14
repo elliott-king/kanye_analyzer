@@ -1,6 +1,6 @@
 const emoji = require('node-emoji');
 var MongoClient = require('mongodb').MongoClient
-	,format = require('util').format
+	, format = require('util').format
 	, mongoPort = '27017'
 	, collection;
 

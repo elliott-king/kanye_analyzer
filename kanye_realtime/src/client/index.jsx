@@ -53,7 +53,6 @@ class CommentContainer extends React.Component {
 	render() {
 		let commentArray = [];
         for (var i = this.state.commentQueue.length - 1; i >= 0; i--){ 
-//		for (var i = 0; i < this.state.commentQueue.length; i++){
 			var comment = this.state.commentQueue[i];
 			commentArray.push(this.renderComment(
 				comment.name, 

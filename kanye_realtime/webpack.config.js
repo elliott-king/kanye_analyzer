@@ -12,10 +12,14 @@ var APP_DIR = (path.resolve(__dirname, 'src/client'));
 
 var config = {
     mode: 'development',
-    entry: APP_DIR + '/index.jsx', 
+    entry: {
+        index: APP_DIR + '/index.jsx',
+        statistics: APP_DIR + '/statistics.jsx',
+    },
+
     output: {
         path: BUILD_DIR,
-        filename: 'bundle.js'
+        filename: '[name].bundle.js'
     },
     module: {
         rules: [

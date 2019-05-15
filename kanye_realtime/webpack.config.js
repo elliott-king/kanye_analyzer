@@ -35,8 +35,7 @@ var config = {
     },
     plugins: [
         new CopyWebpackPlugin([
-            APP_DIR + '/index.html',
-            APP_DIR + '/style.css'
+            APP_DIR + '/static',
         ])
     ]
 };

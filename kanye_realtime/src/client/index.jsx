@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './style.css';
+import './static/style.css';
 
 function formatDate(datePosted) {
     let date = new Date(datePosted * 1000);

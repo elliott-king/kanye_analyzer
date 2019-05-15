@@ -66,3 +66,6 @@ typings/
 
 # swapfiles from vim
 *.swp
+
+# VSCode workspace
+*.code-workspace

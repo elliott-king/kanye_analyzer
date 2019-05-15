@@ -6,6 +6,7 @@
 
 ###Low priority:
 - Name server file 'app.js'
+- style.css is being duplicated (incl. @ index.js, also copies w/ webpack.config)
 - Move to PostgreSQL
 - consider splitting the website and scraper
     a) Redis to communicate

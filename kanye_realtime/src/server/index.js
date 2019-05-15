@@ -26,7 +26,6 @@ io.on('connection', socket => {
     console.log(`Socket ${socket.id} connected.`);
 
     // Send four most recent (oldest first), then send the welcome message.
-    // TODO: order may be out of whack
     mongoHandlerPromise.then(function(export_fns) {
         export_fns.retrieveRecent(4).then( function(docsArray) {
             for (var i = docsArray.length - 1; i >= 0; i--) {

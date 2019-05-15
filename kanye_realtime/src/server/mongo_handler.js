@@ -21,6 +21,14 @@ function inDatabase(comment_name) {
 
 const export_fns = {
 
+    // getStatistics: function()
+	getPositivityStatistics: function() {
+		return new Promise(function(resolve) {resolve( "posstats placeholder")});
+	},
+	getCategoryStatistics: function() {
+		return new Promise(function(resolve) {resolve( "catstats placeholder")});
+	},
+
 	// Expects a json-parsed object
 	insertIfValid: function(comment) {
 		var contents = comment.data.body;
@@ -67,7 +75,7 @@ module.exports = function(dbName='test', collectionName='test') {
 	var promise = MongoClient.connect(url).then(
 		function(client) {
 			collection = client.db(dbName).collection(collectionName);
-			console.log(`Connected to db ${dbName} on port ${mongoPort} at ${(new Date).getTime()}`);
+			console.log(`Connected to db ${dbName} and collection ${collectionName} on port ${mongoPort} at ${(new Date).getTime()}`);
 			return export_fns;
 		});
 	return promise;

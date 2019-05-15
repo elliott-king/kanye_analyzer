@@ -6,6 +6,7 @@
 
 ###Low priority:
 - Name server file 'app.js'
+- Reinforce (on client and server) that data is JSON format
 - style.css is being duplicated (incl. @ index.js, also copies w/ webpack.config)
 - Move to PostgreSQL
 - consider splitting the website and scraper

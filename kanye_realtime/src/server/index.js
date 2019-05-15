@@ -1,10 +1,7 @@
 const http = require('http');
 const redditSnooper = require('reddit-snooper');
-const emoji = require('node-emoji');
-const path = require('path');
 const socketio = require('socket.io');
 const express = require('express');
-const assert = require('assert');
 const mongoHandler = require('./mongo_handler.js');
 
 const app = express();
@@ -18,6 +15,24 @@ const {serverPort = 8080, dbname = 'kanye', collName = 'wavy-comments'} = args;
 var snooper = new redditSnooper({
 		automatic_retries: true,
 		api_requests_per_minute: 60
+});
+
+app.get('/statistics/data.json', function(req, res) {
+  //res.send('Hello world');
+    mongoHandler(dbname, 'wavy-categories')
+    .then(function(export_fns) {
+        // export_fns.getStatistics().then(function(stats) {
+        //     res.send(JSON.stringify(stats));
+        // }, e => console.error('Error getting stats from db:', e));
+        export_fns.getPositivityStatistics().then(function(posStats) {
+            export_fns.getCategoryStatistics().then(function(catStats) {
+                res.send(JSON.stringify({
+                    "positivity_statistics": posStats,
+                    "category_statistics": catStats
+                }));
+            }, e => console.error('Unable to get category stats:', e));
+        }, e => console.error('Unable to get positivity stats:', e));
+    }, e => console.error('Error connecting to db or collection:', e));
 });
 
 var mongoHandlerPromise = mongoHandler(dbname, collName);

@@ -1,9 +1,10 @@
 const emoji = require('node-emoji');
+var test = require('assert');
 var MongoClient = require('mongodb').MongoClient
 	, format = require('util').format
 	, mongoPort = '27017'
-	, collection;
-
+    , collection;
+    
 function isWavy(commentBody) {
 	const waves = [emoji.get('ocean'), 'wavy', 'wavey'];
 	var isWavy = false;
@@ -21,12 +22,41 @@ function inDatabase(comment_name) {
 
 const export_fns = {
 
-    // getStatistics: function()
-	getPositivityStatistics: function() {
-		return new Promise(function(resolve) {resolve( "posstats placeholder")});
-	},
-	getCategoryStatistics: function() {
-		return new Promise(function(resolve) {resolve( "catstats placeholder")});
+    // TODO: make a global cache so we don't query the db every time.
+	getPositivityStatistics: function(callback) {
+        var cursor = collection.find({'is_wavy': {'$exists': true}});
+        ret = {
+            'false': 0,
+            'true': 0
+        };
+        cursor.forEach(function(doc) {
+            test.ok(doc != null);
+            if (doc.is_wavy == 'wavy') {
+                ret.true += 1;
+            } else {
+                ret.false += 1;
+            }
+        }, function(err) {
+            test.equal(null, err);
+            callback(ret);
+        });
+    },
+    
+	getCategoryStatistics: function(callback) {
+        var cursor = collection.find({'category': {'$exists': true}});
+        ret = {};
+        cursor.forEach(function(doc) {
+            test.ok(doc != null);
+            if(ret.hasOwnProperty([doc.category])) {
+                ret[doc.category] += 1;
+            } else {
+                ret[doc.category] = 1;
+            }
+
+        }, function(err) {
+            test.equal(null, err);
+            callback(ret);
+        });
 	},
 
 	// Expects a json-parsed object

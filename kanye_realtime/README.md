@@ -2,7 +2,7 @@
 
 ###High Priority:
 - Show percents of comments that fill categories.
-- Move off of http -> express.js (http not updated)
+- Cache parts of the mongo_handler
 
 ###Low priority:
 - Name server file 'app.js'

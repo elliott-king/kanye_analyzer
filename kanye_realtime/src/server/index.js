@@ -18,21 +18,17 @@ var snooper = new redditSnooper({
 });
 
 app.get('/statistics/data.json', function(req, res) {
-  //res.send('Hello world');
     mongoHandler(dbname, 'wavy-categories')
     .then(function(export_fns) {
-        // export_fns.getStatistics().then(function(stats) {
-        //     res.send(JSON.stringify(stats));
-        // }, e => console.error('Error getting stats from db:', e));
-        export_fns.getPositivityStatistics().then(function(posStats) {
-            export_fns.getCategoryStatistics().then(function(catStats) {
+        export_fns.getPositivityStatistics(function(posStats) {
+            export_fns.getCategoryStatistics(function(catStats) {
                 res.send(JSON.stringify({
                     "positivity_statistics": posStats,
                     "category_statistics": catStats
                 }));
             }, e => console.error('Unable to get category stats:', e));
-        }, e => console.error('Unable to get positivity stats:', e));
-    }, e => console.error('Error connecting to db or collection:', e));
+        });
+    });
 });
 
 var mongoHandlerPromise = mongoHandler(dbname, collName);

@@ -14,7 +14,7 @@ var config = {
     mode: 'development',
     entry: {
         index: APP_DIR + '/index.jsx',
-        statistics: APP_DIR + '/statistics.jsx',
+        statistics: APP_DIR + '/statistics.js',
     },
 
     output: {

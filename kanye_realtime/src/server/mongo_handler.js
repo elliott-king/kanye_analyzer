@@ -26,15 +26,15 @@ const export_fns = {
 	getPositivityStatistics: function(callback) {
         var cursor = collection.find({'is_wavy': {'$exists': true}});
         ret = {
-            'false': 0,
-            'true': 0
+            'wavy': 0,
+            'not wavy': 0
         };
         cursor.forEach(function(doc) {
             test.ok(doc != null);
             if (doc.is_wavy == 'wavy') {
-                ret.true += 1;
+                ret['wavy'] += 1;
             } else {
-                ret.false += 1;
+                ret['not wavy'] += 1;
             }
         }, function(err) {
             test.equal(null, err);

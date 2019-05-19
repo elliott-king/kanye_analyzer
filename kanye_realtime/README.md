@@ -1,8 +1,11 @@
 #TODOS:
 
 ###High Priority:
-- Show percents of comments that fill categories.
 - Cache parts of the mongo_handler
+- Add navbar to all pages
+
+### Med Priority:
+- Modify colors of pie chart to be more distinctive.
 
 ###Low priority:
 - Name server file 'app.js'

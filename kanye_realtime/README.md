@@ -1,13 +1,14 @@
 # TODOS:
 
 ### High Priority:
-- Cache parts of the mongo_handler
+- Cache parts of the mongo_handler (when fetching statistics).
 - Add navbar to all pages
 
 ### Med Priority:
 - Modify colors of pie chart to be more distinctive.
 
 ### Low priority:
+- Get rid of column name in 'args'
 - Name server file 'app.js'
 - Reinforce (on client and server) that data is JSON format
 - style.css is being duplicated (incl. @ index.js, also copies w/ webpack.config)

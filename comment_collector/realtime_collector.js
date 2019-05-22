@@ -1,3 +1,5 @@
+// WARNING: NOT USED, may use deprecated code.
+
 const redditSnooper = require('reddit-snooper');
 const mongoHandler = require('../kanye_realtime/src/server/mongo_handler.js');
 

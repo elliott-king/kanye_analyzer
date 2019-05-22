@@ -1,9 +1,11 @@
 const emoji = require('node-emoji');
 var test = require('assert');
 var MongoClient = require('mongodb').MongoClient
-	, format = require('util').format
 	, mongoPort = '27017'
-    , collection;
+    , db;
+
+const COMMENTS = 'wavy-comments'
+    , CATEGORIES = 'wavy-categories';
     
 function isWavy(commentBody) {
 	const waves = [emoji.get('ocean'), 'wavy', 'wavey'];
@@ -16,7 +18,8 @@ function isWavy(commentBody) {
 };
 
 function inDatabase(comment_name) {
-	// TODO: replace find with some sort of exist() function? maybe index the db?
+    // TODO: replace find with some sort of exist() function? maybe index the db?
+    let collection = db.collection('COMMENTS');
 	return collection.find({ name: comment_name}).hasNext();
 };
 
@@ -24,6 +27,7 @@ const export_fns = {
 
     // TODO: make a global cache so we don't query the db every time.
 	getPositivityStatistics: function(callback) {
+        let collection = db.collection(CATEGORIES);
         var cursor = collection.find({'is_wavy': {'$exists': true}});
         ret = {
             'wavy': 0,
@@ -43,6 +47,7 @@ const export_fns = {
     },
     
 	getCategoryStatistics: function(callback) {
+        let collection = db.collection(CATEGORIES);
         var cursor = collection.find({'category': {'$exists': true}});
         ret = {};
         cursor.forEach(function(doc) {
@@ -61,6 +66,7 @@ const export_fns = {
 
 	// Expects a json-parsed object
 	insertIfValid: function(comment) {
+        let collection = db.collection(COMMENTS);
 		var contents = comment.data.body;
 		var user = comment.data.author;
 		var comment_name = comment.data.name
@@ -75,7 +81,7 @@ const export_fns = {
 			return new Promise(function(resolve) { resolve(false);});
 		}
 
-		// second, check if comment exists in db
+        // second, check if comment exists in db
 		return inDatabase(comment_name).then( function(b) {
 			if (b) {
 				console.log('Already in db: ', comment.data.body, '\nWith id: ', comment.data.name);
@@ -94,18 +100,20 @@ const export_fns = {
 	retrieveRecent: function(limit=1) {
 		//if (limit > 10) {
 		//	throw new // TODO: limit exceeded error?
-		//}
-		// Will be ordered new -> old
+        //}
+        
+        // Will be ordered new -> old
+        let collection = db.collection(COMMENTS);
 		return collection.find().sort({created: -1}).limit(limit).toArray()
 	}
 };
 
 var url = `mongodb://127.0.0.1:${mongoPort}`;
-module.exports = function(dbName='test', collectionName='test') {
+module.exports = function(dbName='test') {
 	var promise = MongoClient.connect(url).then(
 		function(client) {
-			collection = client.db(dbName).collection(collectionName);
-			console.log(`Connected to db ${dbName} and collection ${collectionName} on port ${mongoPort} at ${(new Date).getTime()}`);
+            db = client.db(dbName);
+			console.log(`Connected to db ${dbName} on port ${mongoPort} at ${(new Date).getTime()}`);
 			return export_fns;
 		});
 	return promise;

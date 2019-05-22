@@ -35,9 +35,8 @@ describe('Array', function() {
 
 describe('MongoHandler', function() {
 	var MongoClient = require('mongodb').MongoClient
-		, format = require('util').format
 		, mongoPort = '27017'
-		, collectionName = 'test'
+		, collectionName = 'wavy-comments'
 		, dbname = 'test';
 
 	before('add wavy comment to db', function(done) {

@@ -1,14 +1,13 @@
 'use strict'
 
 const randomInt = require('random-int')
-const sleep = require('sleep');
 const request = require('request');
 const mongoHandler = require('../kanye_realtime/src/server/mongo_handler.js');
 
 const args = require('minimist')(process.argv.slice(2));
 const {dbname = 'kanye', collectionName = 'wavy-comments'} = args;
 
-var mongoHandlerPromise = mongoHandler(dbname, collectionName);
+var mongoHandlerPromise = mongoHandler(dbname);
 const subreddit = 'https://www.reddit.com/r/kanye';
 var url = subreddit + '/comments.json?limit=100';
 var after = '';

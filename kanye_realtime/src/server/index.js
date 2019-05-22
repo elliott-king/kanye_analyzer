@@ -18,7 +18,7 @@ var snooper = new redditSnooper({
 });
 
 app.get('/statistics/data.json', function(req, res) {
-    mongoHandler(dbname, 'wavy-categories')
+    mongoHandler(dbname)
     .then(function(export_fns) {
         export_fns.getPositivityStatistics(function(posStats) {
             export_fns.getCategoryStatistics(function(catStats) {
@@ -31,7 +31,7 @@ app.get('/statistics/data.json', function(req, res) {
     });
 });
 
-var mongoHandlerPromise = mongoHandler(dbname, collName);
+var mongoHandlerPromise = mongoHandler(dbname);
 
 io.on('connection', socket => {
     console.log(`Socket ${socket.id} connected.`);

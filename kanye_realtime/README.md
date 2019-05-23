@@ -1,8 +1,7 @@
 # TODOS:
 
 ### High Priority:
-- Cache parts of the mongo_handler (when fetching statistics).
-- Add navbar to all pages
+- Add nlp guesses to site.
 
 ### Med Priority:
 - Modify colors of pie chart to be more distinctive.

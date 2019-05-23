@@ -1,8 +1,14 @@
 const emoji = require('node-emoji');
+const _ = require('lodash');
 var test = require('assert');
 var MongoClient = require('mongodb').MongoClient
 	, mongoPort = '27017'
     , db;
+
+var lastPositivityTime = 0
+    , lastCategoryTime = 0
+    , cachedPositivityStats = {}
+    , cachedCategoryStats = {};
 
 const COMMENTS = 'wavy-comments'
     , CATEGORIES = 'wavy-categories';
@@ -27,6 +33,10 @@ const export_fns = {
 
     // TODO: make a global cache so we don't query the db every time.
 	getPositivityStatistics: function(callback) {
+        if (Date.now() < lastPositivityTime + 6*60*60*1000 && !_.isEmpty(cachedPositivityStats)) {
+            callback(cachedPositivityStats);
+            return;
+        }
         let collection = db.collection(CATEGORIES);
         var cursor = collection.find({'is_wavy': {'$exists': true}});
         ret = {
@@ -42,11 +52,18 @@ const export_fns = {
             }
         }, function(err) {
             test.equal(null, err);
+            console.log('Generated new positivity stats at', Date.now());
+            lastPositivityTime = Date.now();
+            cachedPositivityStats = ret;
             callback(ret);
         });
     },
     
 	getCategoryStatistics: function(callback) {
+        if (Date.now() < lastCategoryTime + 6*60*60*1000 && !_.isEmpty(cachedCategoryStats)) {
+            callback(cachedCategoryStats);
+            return;
+        }
         let collection = db.collection(CATEGORIES);
         var cursor = collection.find({'category': {'$exists': true}});
         ret = {};
@@ -60,6 +77,9 @@ const export_fns = {
 
         }, function(err) {
             test.equal(null, err);
+            console.log('Generated new category stats at', Date.now());
+            lastCategoryTime = Date.now();
+            cachedCategoryStats = ret;
             callback(ret);
         });
 	},

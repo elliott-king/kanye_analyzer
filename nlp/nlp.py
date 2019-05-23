@@ -13,7 +13,7 @@ Usage:
 
 Call from command line to classify 100 comments.
 
-python cli:
+python3 cli:
     import nlp
     import nltk
 
@@ -95,6 +95,8 @@ def get_features(comment):
             = emoji.emojize(e, use_aliases=True) in comment['body']
 
     useful_words = [
+            'you',
+            'op',
             'not',
             'unwavy',
             'Kanye'
@@ -121,20 +123,29 @@ def get_features(comment):
 
 def comments_with_category():
     cursor = mongo_handler.get_categorized_comments()
-    pairs = [
-        (
-            mongo_handler.get_comment(category['name'], pretty=False),
-            category['category']
-        ) for category in cursor]
+
+    pairs = []
+    # A labeled comment may not be labeled for both 'is_wavy' and 'category'
+    for categorized_comment in cursor:
+        if 'category' in categorized_comment:
+            pairs.append((
+                    mongo_handler.get_comment(
+                        categorized_comment['name'], pretty=False),
+                    categorized_comment['category']
+            ))
     return pairs
 
 def comments_with_positivity():
     cursor = mongo_handler.get_positivity_categorized_comments()
-    pairs = [
-        (
-            mongo_handler.get_comment(category['name'], pretty=False),
-            category['is_wavy']
-        ) for category in cursor]
+
+    pairs = []
+    for categorized_comment in cursor:
+        if 'is_wavy' in categorized_comment:
+            pairs.append((
+                    mongo_handler.get_comment(
+                        categorized_comment['name'], pretty=False),
+                    categorized_comment['is_wavy']
+                    ))
     return pairs
 
 def featureset(categorized_comments):

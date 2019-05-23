@@ -5,9 +5,10 @@
 
 ### Med Priority:
 - Modify colors of pie chart to be more distinctive.
+- Relable pie chart.
 
 ### Low priority:
-- Get rid of column name in 'args'
+- Get rid of column name in 'args' (server arguments).
 - Name server file 'app.js'
 - Reinforce (on client and server) that data is JSON format
 - style.css is being duplicated (incl. @ index.js, also copies w/ webpack.config)

@@ -21,6 +21,10 @@ python3 cli:
     classifier = nltk.NaiveBayesClassifier.train(train)
     nltk.classify.accuracy(classifier, test)
     classifier.show_most_informative_features()
+
+    import mongo_handler
+    comment = mongo_handler.get_comment(name)
+    classifier.classify(comment)
 '''
 
 # tokenize string:           nltk.word_tokenize(s)

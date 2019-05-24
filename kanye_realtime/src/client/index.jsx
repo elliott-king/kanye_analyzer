@@ -25,6 +25,9 @@ function Comment(props) {
             <div className="row">
                 <p className="comment-body col"><a href={props.link}>{props.body}</a></p>
             </div>
+            <div className="row classifications">
+                <p className="positivity-classification col">{props.positivityClassification}</p>
+            </div>
         </div>
     );
 }
@@ -42,11 +45,13 @@ class CommentContainer extends React.Component {
 			console.log('Connected to server');
 		});
 		this.sock.on('comment', (comment) => {
+                        console.log(comment);
 			this.addComment(JSON.parse(comment));
 		});
 	}
 
-	renderComment(commentId, author, datePosted, body, link) {
+	renderComment(commentId, author, datePosted, 
+            body, link, positivityClassification) {
 		return (
 			<Comment 
 				key={commentId} 
@@ -54,7 +59,8 @@ class CommentContainer extends React.Component {
 				author={author} 
 				datePosted={datePosted} 
 				body={body}
-				link={link}/>
+				link={link}
+                                positivityClassification={positivityClassification}/>
 		);
 	}
 
@@ -67,7 +73,8 @@ class CommentContainer extends React.Component {
 				comment.author, 
 				comment.created_utc, 
 				comment.body,
-				"https://www.reddit.com" + comment.permalink));
+				"https://www.reddit.com" + comment.permalink,
+                                comment.is_wavy));
 		}
 		return (
 			<div className="comment-container container">

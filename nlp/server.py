@@ -5,6 +5,9 @@ import nlp
 import nltk
 import mongo_handler
 
+import ast
+import json
+
 app = Flask(__name__)
 
 positivity_test, positivity_train = nlp.get_test_train_sets_positivity()
@@ -13,13 +16,20 @@ category_test, category_train = nlp.get_test_train_sets_category()
 positivity_classifier = nltk.NaiveBayesClassifier.train(positivity_train)
 category_classifier = nltk.NaiveBayesClassifier.train(category_train)
 
+# TODO: add both classifiers (currently only using positivity)
+
 @app.route('/')
 def hello_world():
     return 'Hello world!'
 
-@app.route('/classify', methods=['GET'])
+# response = requests.post('https://httpbin.org/post', json={'key':'value'})
+@app.route('/classify', methods=['GET', 'POST'])
 def classify():
-    name = request.args.get('name')
-    print('Pretty comment:', mongo_handler.get_comment(name))
-    comment = mongo_handler.get_comment(name, pretty=False)
-    return positivity_classifier.classify(comment) + '\n'
+    if request.method == 'POST':
+        comment = request.json
+        print("Classifying comment:", comment['name'], 'as:', 
+                positivity_classifier.classify(comment))
+        return positivity_classifier.classify(comment)
+
+    return "Invalid request."
+

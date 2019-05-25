@@ -11,6 +11,12 @@ POSITIVITY = [
         'not_wavy',
 ]
 
+POSITIVITY_TEXT = {
+        'ambiguous': 'ambiguous',
+        'wavy': 'wavy',
+        'not_wavy': 'not wavy'
+        }
+
 # Categorization: who/what is being referred to as wavy?
 CATEGORIES = [
     'misc',
@@ -25,3 +31,15 @@ CATEGORIES = [
     'copypasta',
 ]
 
+CATEGORIES_TEXT = {
+    'misc': 'misc/other',
+    'poster': 'another poster on the subreddit',
+    'op': 'the original poster of the thread',
+    'link': 'the subject of the thread',
+    'this_sub': 'r/kanye itself',
+    'external_person': 'an external individual',
+    'external_object': 'an external object',
+    'self': 'themselves',
+    'kanye': 'the man himself',
+    'copypasta': 'nothing. It is a copypasta',
+}

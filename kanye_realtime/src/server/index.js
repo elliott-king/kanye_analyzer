@@ -58,7 +58,7 @@ io.on('connection', socket => {
 
     // Send four most recent (oldest first), then send the welcome message.
     mongoHandlerPromise.then(function(export_fns) {
-        export_fns.retrieveRecent(4).then( function(docsArray) {
+        export_fns.retrieveRecent(5).then( function(docsArray) {
             for (var i = docsArray.length - 1; i >= 0; i--) {
 
                 let comment = docsArray[i];
@@ -70,14 +70,6 @@ io.on('connection', socket => {
                 
 
             }
-            socket.emit('comment', JSON.stringify({
-                    author: "Welcome!",
-                    body: "Welcome to the r/Kanye realtime wavy feed!",
-                    name: "realtime-intro-connection-message",
-                    created: (new Date).getTime()/1000,
-                    created_utc: (new Date).getTime()/1000,
-                    permalink: "/r/Kanye"
-            }));
        });
     }, console.error);
 

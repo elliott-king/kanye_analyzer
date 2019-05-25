@@ -4,6 +4,7 @@ from flask import request
 import nlp
 import nltk
 import mongo_handler
+import constants
 
 import ast
 import json
@@ -35,7 +36,9 @@ def classify():
         print('Category:', cat)
         print('Is wavy:', pos)
         
-        return json.dumps({'category': cat, 'is_wavy': pos})
+        return json.dumps({
+                'category': constants.CATEGORIES_TEXT[cat], 
+                'is_wavy': constants.POSITIVITY_TEXT[pos]})
 
     return "Invalid request."
 

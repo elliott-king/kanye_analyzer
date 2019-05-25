@@ -26,8 +26,8 @@ function Comment(props) {
                 <p className="comment-body col"><a href={props.link}>{props.body}</a></p>
             </div>
             <div className="row classifications">
-                <p className="positivity-classification col">{props.positivityClassification}</p>
-                <p className="category-classification col">{props.categoryClassification}</p>
+                <p className="category-classification col">This comment refers to: {props.categoryClassification}.</p>
+                <p className="positivity-classification col">This comment is: {props.positivityClassification}.</p>
             </div>
         </div>
     );

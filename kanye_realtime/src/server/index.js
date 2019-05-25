@@ -63,7 +63,8 @@ io.on('connection', socket => {
 
                 let comment = docsArray[i];
                 get_estimate(comment, function(classification) {
-                    comment['is_wavy'] = classification;
+                    comment['is_wavy'] = classification['is_wavy'];
+                    comment['category'] = classification['category'];
                     socket.emit('comment', JSON.stringify(comment));
                 });
                 

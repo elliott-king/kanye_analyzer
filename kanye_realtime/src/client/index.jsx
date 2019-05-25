@@ -27,6 +27,7 @@ function Comment(props) {
             </div>
             <div className="row classifications">
                 <p className="positivity-classification col">{props.positivityClassification}</p>
+                <p className="category-classification col">{props.categoryClassification}</p>
             </div>
         </div>
     );
@@ -50,8 +51,8 @@ class CommentContainer extends React.Component {
 		});
 	}
 
-	renderComment(commentId, author, datePosted, 
-            body, link, positivityClassification) {
+	renderComment(commentId, author, datePosted, body, link, 
+            positivityClassification, categoryClassification) {
 		return (
 			<Comment 
 				key={commentId} 
@@ -60,6 +61,7 @@ class CommentContainer extends React.Component {
 				datePosted={datePosted} 
 				body={body}
 				link={link}
+                                categoryClassification={categoryClassification}
                                 positivityClassification={positivityClassification}/>
 		);
 	}
@@ -74,7 +76,8 @@ class CommentContainer extends React.Component {
 				comment.created_utc, 
 				comment.body,
 				"https://www.reddit.com" + comment.permalink,
-                                comment.is_wavy));
+                                comment.is_wavy,
+                                comment.category));
 		}
 		return (
 			<div className="comment-container container">

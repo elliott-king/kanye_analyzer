@@ -27,9 +27,15 @@ def hello_world():
 def classify():
     if request.method == 'POST':
         comment = request.json
-        print("Classifying comment:", comment['name'], 'as:', 
-                positivity_classifier.classify(comment))
-        return positivity_classifier.classify(comment)
+        print("Classifying comment:", comment['name'])
+
+        cat = category_classifier.classify(comment)
+        pos = positivity_classifier.classify(comment)
+
+        print('Category:', cat)
+        print('Is wavy:', pos)
+        
+        return json.dumps({'category': cat, 'is_wavy': pos})
 
     return "Invalid request."
 

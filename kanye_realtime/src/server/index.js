@@ -3,6 +3,7 @@ const redditSnooper = require('reddit-snooper');
 const socketio = require('socket.io');
 const express = require('express');
 const mongoHandler = require('./mongo_handler.js');
+const request = require('request');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,6 +17,22 @@ var snooper = new redditSnooper({
 		automatic_retries: true,
 		api_requests_per_minute: 60
 });
+
+// Remember that the '_id' field is not serializable.
+function get_estimate(comment, callback) {
+    request({
+        url: 'http://localhost:5000/classify',
+        method: "POST",
+        json: comment
+    }, function(error, response, body) {
+        console.log('Getting estimate for comment:', comment['name']);
+
+        if(error) { console.error('error:', error); }
+        console.log('Status code:', response && response.statusCode, 'body:', body);
+        
+        callback(body);
+    });
+};
 
 app.get('/statistics/data.json', function(req, res) {
     mongoHandler(dbname)
@@ -40,7 +57,14 @@ io.on('connection', socket => {
     mongoHandlerPromise.then(function(export_fns) {
         export_fns.retrieveRecent(4).then( function(docsArray) {
             for (var i = docsArray.length - 1; i >= 0; i--) {
-                socket.emit('comment', JSON.stringify(docsArray[i]));
+
+                let comment = docsArray[i];
+                get_estimate(comment, function(classification) {
+                    comment['is_wavy'] = classification;
+                    socket.emit('comment', JSON.stringify(comment));
+                });
+                
+
             }
             socket.emit('comment', JSON.stringify({
                     author: "Welcome!",

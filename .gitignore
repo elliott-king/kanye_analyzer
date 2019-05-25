@@ -40,6 +40,9 @@ build/Release
 # Build directory
 **/dist/
 
+# Python built binaries
+*.pyc
+
 # TypeScript v1 declaration files
 typings/
 

@@ -241,8 +241,8 @@ def request_input_on_cursor(comment):
 # generate train data by hand
 if __name__ == '__main__':
 
-    categories = constants.CATEGORIES
-    positivity_options = constants.POSITIVITY
+    categories = constants.CATEGORIES_TEXT.keys()
+    positivity_options = constants.POSITIVITY_TEXT.keys()
 
     command_cursor = mongo_handler.get_noncategorized_comments(limit=50)
     for comment in command_cursor:

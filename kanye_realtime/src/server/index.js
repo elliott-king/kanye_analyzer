@@ -29,6 +29,9 @@ function get_estimate(comment, callback) {
 
         if(error) { console.error('error:', error); }
         console.log('Status code:', response && response.statusCode, 'body:', body);
+        if (!body) {
+            body = "Unable to create estimate for comment.";
+        }
         
         callback(body);
     });

@@ -103,7 +103,8 @@ def get_features(comment):
             'op',
             'not',
             'unwavy',
-            'Kanye'
+            'Kanye',
+            '/s'
     ]
     for w in useful_words:
         features['contains \'{}\''.format(w)] = w in body_lowercase

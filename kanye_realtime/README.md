@@ -1,11 +1,16 @@
 # TODOS:
+- Consider moving to python on the backend.
 
 ### High Priority:
-- Add nlp guesses to site.
+- Add option to change nlp guesses.
+- Change nlp classifier based on given input.
+- Better integrate python & node using rabbitMQ: https://medium.com/@HolmesLaurence/integrating-node-and-python-6b8454bfc272
+- Add more unit tests (start applying TDD).
 
 ### Med Priority:
 - Modify colors of pie chart to be more distinctive.
-- Relable pie chart.
+- Re-label pie chart.
+- Python server should restart upon code change.
 
 ### Low priority:
 - Get rid of column name in 'args' (server arguments).

@@ -1,10 +1,11 @@
 var mongoHandler = require('../src/server/mongo_handler.js')
 var assert = require('assert');
+var _ = require('lodash');
 
 const not_wavy = {
 	data: {
 		author: 'test_author_for_node',
-		name: 'test_name_for_node',
+		name: 'not_wavy_comment',
 		body: 'does not contain the \'w\' word'
 	}
 };
@@ -12,17 +13,38 @@ const not_wavy = {
 const exists_in_db = {
 	data: {
 		author: 'test_author_for_node',
-		name: 'test_name_for_node',
+		name: 'exists_in_db_wavy_comment',
 		body: 'does contain \'wavy\''
 	}
 };
 const is_wavy = {
 	data: {
 		author: 'test_author_for_node',
-		name: 'test_name_new_in_db',
+		name: 'test_comment_new_in_db',
 		body: 'does contain wavy'
 	}
 };
+
+const category_docs = [
+    {
+        name: 'a',
+        is_wavy: 'wavy',
+        category: 'poster'
+    },{
+        name: 'b',
+        is_wavy: 'not_wavy',
+        category: 'external_person'
+    },{
+        name: 'c', 
+        is_wavy: 'wavy',
+        category: 'op'
+    },{
+        name: 'd',
+        is_wavy: 'wavy',
+        category: 'external_person'
+    }
+    
+];
 	
 // first time using mocha
 describe('Array', function() {
@@ -36,39 +58,44 @@ describe('Array', function() {
 describe('MongoHandler', function() {
 	var MongoClient = require('mongodb').MongoClient
 		, mongoPort = '27017'
-		, collectionName = 'wavy-comments'
+        , commentCollection = 'wavy-comments'
+        , categoryCollection = 'wavy-categories'
 		, dbname = 'test';
 
 	before('add wavy comment to db', function(done) {
-		MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, function(err, client) {
+		MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, {useNewUrlParser: true}, function(err, client) {
 			if(err) throw err;
-			var collection = client.db(dbname).collection(collectionName);
+			var collection = client.db(dbname).collection(commentCollection);
 			console.log(`Connected to db ${dbname} on port ${mongoPort} for before()`);
 
 			collection.insertOne(exists_in_db.data, function(err, result) {
-				assert.equal(null, err);
-				client.close();
-				done();
-			});
+                assert.equal(null, err);
+            
+                var categories = client.db(dbname).collection(categoryCollection);
+                categories.insertMany(category_docs, (err, result) => {
+                    assert.equal(null, err);
+                    client.close();
+                    done();
+                });
+            });
 		});
 
 	});
 
-	after('remove wavy comment from db', function(done) {
+	after('clear collection afterwards', function(done) {
 		MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, function(err, client) {
 			if(err) throw err;
-			var collection = client.db(dbname).collection(collectionName);
+			var collection = client.db(dbname).collection(commentCollection);
 			console.log(`Connected to db ${dbname} on port ${mongoPort} for after().`);
+            collection.deleteMany({}, (err, result) => {
+                assert.equal(null, err);
 
-			collection.deleteOne({ name: exists_in_db.data.name}, function(err, result) {
-				assert.equal(err, null);
-				//assert.equal(1, result.result.n); // TODO may not always hold?	
-				collection.deleteMany({ name: is_wavy.data.name}, function(err, result) {
-					assert.equal(err, null);
-					//assert.equal(1, result.result.n); // TODO may not always hold?
-					client.close();
-					done();
-				});
+                var categories = client.db(dbname).collection(categoryCollection);
+                categories.deleteMany({}, (err, result) => {
+                    client.close();
+                    assert.equal(null, err);
+                    done();
+                });
 			});
 		});
 	});
@@ -78,9 +105,11 @@ describe('MongoHandler', function() {
 	describe('#insertIfValid()', function() {
 		it('should return false when comment does not contain wavy emoji', function(done) {
 			mongoHandler().then(function(export_fns) {
+                assert.ok(true);
 				export_fns.insertIfValid(not_wavy).then( function(b) {
-					assert.ok(!b)
-					done();
+                    export_fns.close();
+                    assert.ok(!b)
+                    done();
 				});
 			}, function(err) {
 				console.log(err);
@@ -90,8 +119,9 @@ describe('MongoHandler', function() {
 			mongoHandler().then(function(export_fns) {
 				var insert_promise = export_fns.insertIfValid(exists_in_db);
 				insert_promise.then(function(b) {
-					assert.ok(!b);
-					done();
+                    export_fns.close();
+                    assert.ok(!b);
+                    done();
 				});
 			}, function(err) {
 				console.log(err);
@@ -101,8 +131,9 @@ describe('MongoHandler', function() {
 			mongoHandler().then(function(export_fns) {
 				
 				export_fns.insertIfValid(is_wavy).then(function(b) {
-					assert.ok(b);
-					done();
+                    export_fns.close();
+                    assert.ok(b);
+                    done();
 				});
 			}, function(err) {
 				console.error("error: ", err);
@@ -110,14 +141,52 @@ describe('MongoHandler', function() {
 		});
 	});
 
-	describe('#retrieveRecent()', function(done) {
+	describe('#retrieveRecent()', function() {
 		it('return the document in the \'test\' collection', function(done) {
 			mongoHandler().then(function(export_fns) {
 				export_fns.retrieveRecent().then(function(recentArray){
-					assert.ok(recentArray.length == 1);
-					done();
+                    export_fns.close();
+                    assert.ok(recentArray.length == 1);
+                    done();
 				});
 			});
-		});
-	});
+        });
+        
+        it('should fail if limit > 10', function(done) {
+            mongoHandler().then(function(export_fns) {
+                export_fns.retrieveRecent(limit=11).then(function(recentArray) {
+                    export_fns.close();
+                    console.error('This should fail because the limit is greater than 10.');
+                    assert.ok(false);
+                    done();
+                }, function(err) {
+                    export_fns.close();
+                    assert.ok(true);
+                    done();
+                });
+            });
+        });
+    });
+    
+    describe('#getPositivityStatistics and #getCategoryStatistics', function() {
+        it('check return of statistics', function(done) {
+            mongoHandler().then(function(export_fns) {
+                export_fns.getPositivityStatistics(function(positivityStatistics) {
+                    export_fns.getCategoryStatistics(function(categoryStatistics) {
+                        export_fns.close();
+                        assert.ok(_.isEqual(positivityStatistics, {
+                            'wavy': 3,
+                            'not wavy': 1,
+                        }));
+                        assert.ok(_.isEqual(categoryStatistics, {
+                            'poster': 1,
+                            'op': 1,
+                            'external_person': 2
+                        }));                    
+                        done();    
+                    });
+                });
+            });
+        })
+    });
 });

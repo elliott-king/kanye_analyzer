@@ -2,7 +2,8 @@ const emoji = require('node-emoji');
 const _ = require('lodash');
 var test = require('assert');
 var MongoClient = require('mongodb').MongoClient
-	, mongoPort = '27017'
+    , mongoPort = '27017'
+    , client
     , db;
 
 var lastPositivityTime = 0
@@ -23,15 +24,8 @@ function isWavy(commentBody) {
 	return isWavy;
 };
 
-function inDatabase(comment_name) {
-    // TODO: replace find with some sort of exist() function? maybe index the db?
-    let collection = db.collection('COMMENTS');
-	return collection.find({ name: comment_name}).hasNext();
-};
-
 const export_fns = {
 
-    // TODO: make a global cache so we don't query the db every time.
 	getPositivityStatistics: function(callback) {
         if (Date.now() < lastPositivityTime + 6*60*60*1000 && !_.isEmpty(cachedPositivityStats)) {
             callback(cachedPositivityStats);
@@ -88,7 +82,7 @@ const export_fns = {
 	insertIfValid: function(comment) {
         let collection = db.collection(COMMENTS);
 		var contents = comment.data.body;
-		var user = comment.data.author;
+		// var user = comment.data.author;
 		var comment_name = comment.data.name
 		//if (!contents || !user) {
 		//	throw new // TODO: error, problem w/ comment json, include comment in err
@@ -97,12 +91,11 @@ const export_fns = {
 
 		// first, check if contains wavyness
 		if (!isWavy(contents)) {
-			// TODO: monitor & log this?
 			return new Promise(function(resolve) { resolve(false);});
 		}
 
-        // second, check if comment exists in db
-		return inDatabase(comment_name).then( function(b) {
+        // second, check if comment exists in db        
+	    return collection.find({ name: comment_name}).hasNext().then( function(b) {
 			if (b) {
 				console.log('Already in db: ', comment.data.body, '\nWith id: ', comment.data.name);
 				return false;
@@ -118,20 +111,26 @@ const export_fns = {
 	},
 
 	retrieveRecent: function(limit=1) {
-		//if (limit > 10) {
-		//	throw new // TODO: limit exceeded error?
-        //}
+		if (limit > 10) {
+            return Promise.reject(new Error('Cannot retrieve more than 10 objects at a time.'));
+        }
         
         // Will be ordered new -> old
         let collection = db.collection(COMMENTS);
 		return collection.find().sort({created: -1}).limit(limit).toArray()
-	}
+    },
+    
+    // Returns a promise.
+    close: function() {
+        return client.close(false);
+    }
 };
 
 var url = `mongodb://127.0.0.1:${mongoPort}`;
 module.exports = function(dbName='test') {
-	var promise = MongoClient.connect(url).then(
-		function(client) {
+	var promise = MongoClient.connect(url, {useNewUrlParser: true}).then(
+		function(c) {
+            client = c;
             db = client.db(dbName);
 			console.log(`Connected to db ${dbName} on port ${mongoPort} at ${(new Date).getTime()}`);
 			return export_fns;

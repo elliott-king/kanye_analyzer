@@ -9,6 +9,11 @@ import constants
 import ast
 import json
 
+'''
+export FLASK_APP=server.py
+py -m flask run
+'''
+
 app = Flask(__name__)
 
 positivity_test, positivity_train = nlp.get_test_train_sets_positivity()

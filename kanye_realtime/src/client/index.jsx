@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Select from 'react-select';
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,23 +15,85 @@ function formatDate(datePosted) {
     return `${mo}/${d} ${h}:${mi}`;
 }
 
-function Comment(props) {
-    let date = formatDate(props.datePosted);
-    return (
-        <div className="comment-feed container" id={props.commentId} key={props.commentId}>
-            <div className="row">
-                <p className="comment-author col">{props.author}</p>
-                <p className="comment-date col">{date}</p>
+const positivityOptions = [
+    {value: 'wavy', label: 'wavy'},
+    {value: 'not_wavy', label: 'not wavy'},
+];
+
+const categoryOptions = [
+    {value: 'misc', label: 'misc/other'},
+    {value: 'poster', label: 'another poster on the subreddit'},
+    {value: 'op', label: 'the original poster of the thread'},
+    {value: 'link', label: 'the subject of the thread'},
+    {value: 'this_sub', label: 'the r/kanye subreddit'},
+    {value: 'external_person', label: 'an external individual'},
+    {value: 'external_object', label: 'an external object'},
+    {value: 'self', label: 'themselves'},
+    {value: 'kanye', label: 'the man himself'},
+    {value: 'copypasta', label: 'nothing. It is a copypasta'},
+]
+
+class Comment extends React.Component{
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedCategory: null,
+            selectedPositivity: null,
+            date: formatDate(props.datePosted),
+        };
+    }
+
+    handlePositivityChange(selectedOption) {
+        this.setState({selectedPositivity: selectedOption});
+    }
+
+    handleCategoryChange(selectedOption){
+        this.setState({selectedCategory: selectedOption});
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        var ret = {};
+        if (this.state.selectedCategory) { ret['category'] = this.state.selectedCategory;}
+        if (this.state.selectedPositivity) { ret['positivity'] = this.state.selectedPositivity;}
+        this.props.submitUserClassification(ret, this.props.commentId);
+    }
+
+    render() {
+        return (
+            <div className="comment-feed container" id={this.props.commentId} key={this.props.commentId}>
+                <div className="row">
+                    <p className="comment-author col">{this.props.author}</p>
+                    <p className="comment-date col">{this.state.date}</p>
+                </div>
+                <div className="row">
+                    <p className="comment-body col"><a href={this.props.link}>{this.props.body}</a></p>
+                </div>
+                <div className="row classifications">
+                    <div className="col returned-classifications">
+                        <p className="row">This comment refers to: {this.props.categoryClassification}.</p>
+                        <p className="col">This comment is: {this.props.positivityClassification}.</p>
+                    </div>
+                    <form className="col classification-form" onSubmit={this.handleSubmit.bind(this)}>
+                        <Select 
+                            value={this.state.selectedCategory}
+                            onChange={this.handleCategoryChange.bind(this)}
+                            options={categoryOptions}
+                            className="col"
+                        />
+                        <Select 
+                            value={this.state.selectedPositivity}
+                            onChange={this.handlePositivityChange.bind(this)}
+                            options={positivityOptions}
+                            className="col"
+                        />
+                        <button type="submit" className="btn">Classify comment</button>
+                    </form>
+                </div>
             </div>
-            <div className="row">
-                <p className="comment-body col"><a href={props.link}>{props.body}</a></p>
-            </div>
-            <div className="row classifications">
-                <p className="category-classification col">This comment refers to: {props.categoryClassification}.</p>
-                <p className="positivity-classification col">This comment is: {props.positivityClassification}.</p>
-            </div>
-        </div>
-    );
+        );
+    }
 }
 
 class CommentContainer extends React.Component {
@@ -49,7 +112,11 @@ class CommentContainer extends React.Component {
                         console.log(comment);
 			this.addComment(JSON.parse(comment));
 		});
-	}
+    }
+    
+    submitUserClassification(classifications, commentId) {
+        console.log(classifications, commentId);
+    }
 
 	renderComment(commentId, author, datePosted, body, link, 
             positivityClassification, categoryClassification) {
@@ -61,8 +128,9 @@ class CommentContainer extends React.Component {
 				datePosted={datePosted} 
 				body={body}
 				link={link}
-                                categoryClassification={categoryClassification}
-                                positivityClassification={positivityClassification}/>
+                submitUserClassification={this.submitUserClassification.bind(this)}
+                categoryClassification={categoryClassification}
+                positivityClassification={positivityClassification}/>
 		);
 	}
 

@@ -45,6 +45,11 @@ const category_docs = [
     }
     
 ];
+const extra_category_doc = {
+    name: 'e',
+    is_wavy: 'not_wavy',
+    category: 'external_person'
+}
 	
 // first time using mocha
 describe('Array', function() {
@@ -60,9 +65,9 @@ describe('MongoHandler', function() {
 		, mongoPort = '27017'
         , commentCollection = 'wavy-comments'
         , categoryCollection = 'wavy-categories'
-		, dbname = 'test';
+        , dbname = 'test';
 
-	before('add wavy comment to db', function(done) {
+	beforeEach('setup', function(done) {
 		MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, {useNewUrlParser: true}, function(err, client) {
 			if(err) throw err;
 			var collection = client.db(dbname).collection(commentCollection);
@@ -82,8 +87,8 @@ describe('MongoHandler', function() {
 
 	});
 
-	after('clear collection afterwards', function(done) {
-		MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, function(err, client) {
+	afterEach('teardown', function(done) {
+		MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, {useNewUrlParser: true}, function(err, client) {
 			if(err) throw err;
 			var collection = client.db(dbname).collection(commentCollection);
 			console.log(`Connected to db ${dbname} on port ${mongoPort} for after().`);
@@ -187,6 +192,59 @@ describe('MongoHandler', function() {
                     });
                 });
             });
-        })
+        });
+        it('Combine multiple functionalities together', function(done) {
+            mongoHandler().then(function(export_fns) {
+                export_fns.getPositivityStatistics(function(positivityStatistics) {
+                    export_fns.getCategoryStatistics(function(categoryStatistics) {
+                        export_fns.close().then( () => {
+                            MongoClient.connect(`mongodb://127.0.0.1:${mongoPort}`, {useNewUrlParser: true}, function(err, client) {
+                                if(err) throw err;
+                                var collection = client.db(dbname).collection(categoryCollection);
+                                console.log(`Connected to db ${dbname} on port ${mongoPort} for 'Combine multiple functionalities together'`);
+                            
+                                collection.insertOne(extra_category_doc, (err, result) => {
+                                    client.close().then(() => {
+                                        client.close();
+                                        console.log('hello');
+                                        assert.equal(null, err);
+
+                                        mongoHandler().then(function(new_export_fns) {
+                                            new_export_fns.insertIfValid(is_wavy).then(function(b) {
+                                                assert.ok(b);
+                                                assert.ok(_.isEqual(positivityStatistics, {
+                                                    'wavy': 3,
+                                                    'not wavy': 1,
+                                                }));
+                                                assert.ok(_.isEqual(categoryStatistics, {
+                                                    'poster': 1,
+                                                    'op': 1,
+                                                    'external_person': 2
+                                                }));
+                                                new_export_fns.getPositivityStatistics((newPositivityStats) =>{
+                                                    new_export_fns.getCategoryStatistics((newCategoryStats) => {
+                                                    new_export_fns.close();
+                                                        assert.ok(_.isEqual(newPositivityStats, {
+                                                            'wavy': 3,
+                                                            'not wavy': 2,
+                                                        }));
+                                                        assert.ok(_.isEqual(newCategoryStats, {
+                                                            'poster': 1,
+                                                            'op': 1,
+                                                            'external_person': 3,
+                                                        }));
+                                                        done();
+                                                    });
+                                                });
+                                            });
+                                        }, (error) => {console.error(error)});
+                                    }, (error) => {console.error(error)});
+                                }, (error) => {console.error(error)});
+                            });
+                        });
+                    });
+                });
+            });
+        });
     });
 });

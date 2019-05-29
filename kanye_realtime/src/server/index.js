@@ -82,9 +82,12 @@ io.on('connection', socket => {
        });
     }, console.error);
 
+    socket.on('user_classification', (classification, commentId) => {
+        console.log("socket", socket.id, "has classified comment", commentId, "with classfication:\n", classification);
+    });
 
     socket.on('disconnect', socket => {
-            console.log(`Socket ${socket.id} disconnected.`);
+        console.log(`Socket ${socket.id} disconnected.`);
     });
 });
 

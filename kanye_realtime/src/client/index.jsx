@@ -55,8 +55,9 @@ class Comment extends React.Component{
     handleSubmit(event) {
         event.preventDefault();
         var ret = {};
-        if (this.state.selectedCategory) { ret['category'] = this.state.selectedCategory;}
-        if (this.state.selectedPositivity) { ret['positivity'] = this.state.selectedPositivity;}
+        if (this.state.selectedCategory) { ret['category'] = this.state.selectedCategory.value;}
+        if (this.state.selectedPositivity) { ret['positivity'] = this.state.selectedPositivity.value;}
+        if(Object.keys(ret).length === 0 && ret.constructor === Object) return;
         this.props.submitUserClassification(ret, this.props.commentId);
     }
 
@@ -109,13 +110,13 @@ class CommentContainer extends React.Component {
 			console.log('Connected to server');
 		});
 		this.sock.on('comment', (comment) => {
-                        console.log(comment);
 			this.addComment(JSON.parse(comment));
 		});
     }
     
     submitUserClassification(classifications, commentId) {
         console.log(classifications, commentId);
+        this.sock.emit('user_classification', classifications, commentId);
     }
 
 	renderComment(commentId, author, datePosted, body, link, 

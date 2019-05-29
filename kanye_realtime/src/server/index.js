@@ -4,6 +4,7 @@ const socketio = require('socket.io');
 const express = require('express');
 const mongoHandler = require('./mongo_handler.js');
 const request = require('request');
+const _ = require('lodash');
 
 const app = express();
 const server = http.createServer(app);
@@ -12,6 +13,9 @@ app.use(express.static(__dirname + '/../../dist/client'));
 
 var args = require('minimist')(process.argv.slice(2));
 const {serverPort = 8080, dbname = 'kanye', collName = 'wavy-comments'} = args;
+
+var lastStatisticsTime = 0
+    , cachedStats = {};
 
 var snooper = new redditSnooper({
 		automatic_retries: true,
@@ -38,17 +42,22 @@ function get_estimate(comment, callback) {
 };
 
 app.get('/statistics/data.json', function(req, res) {
-    mongoHandler(dbname)
-    .then(function(export_fns) {
-        export_fns.getPositivityStatistics(function(posStats) {
-            export_fns.getCategoryStatistics(function(catStats) {
-                res.send(JSON.stringify({
-                    "positivity_statistics": posStats,
-                    "category_statistics": catStats
-                }));
-            }, e => console.error('Unable to get category stats:', e));
+    if (Date.now() < lastStatisticsTime + 6*60*60*1000 && !_.isEmpty(cachedStats)) {
+        res.send(JSON.stringify(cachedStats));
+    } else {
+        mongoHandler(dbname).then(function(export_fns) {
+            export_fns.getPositivityStatistics(function(posStats) {
+                export_fns.getCategoryStatistics(function(catStats) {
+                    cachedStats = {
+                        "positivity_statistics": posStats,
+                        "category_statistics": catStats
+                    }
+                    lastStatisticsTime = Date.now();
+                    res.send(JSON.stringify(cachedStats));
+                }, e => console.error('Unable to get category stats:', e));
+            });
         });
-    });
+    }
 });
 
 var mongoHandlerPromise = mongoHandler(dbname);
@@ -56,7 +65,7 @@ var mongoHandlerPromise = mongoHandler(dbname);
 io.on('connection', socket => {
     console.log(`Socket ${socket.id} connected.`);
 
-    // Send four most recent (oldest first), then send the welcome message.
+    // Send five most recent (oldest first).
     mongoHandlerPromise.then(function(export_fns) {
         export_fns.retrieveRecent(5).then( function(docsArray) {
             for (var i = docsArray.length - 1; i >= 0; i--) {

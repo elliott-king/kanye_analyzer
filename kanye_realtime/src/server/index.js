@@ -41,11 +41,14 @@ function get_estimate(comment, callback) {
     });
 };
 
-app.get('/statistics/data.json', function(req, res) {
-    if (Date.now() < lastStatisticsTime + 6*60*60*1000 && !_.isEmpty(cachedStats)) {
-        res.send(JSON.stringify(cachedStats));
-    } else {
-        mongoHandler(dbname).then(function(export_fns) {
+// First connect to mongodb.
+mongoHandler(dbname).then(function(export_fns) {
+
+    // Express routing for statistics.
+    app.get('/statistics/data.json', function(req, res) {
+        if (Date.now() < lastStatisticsTime + 6*60*60*1000 && !_.isEmpty(cachedStats)) {
+            res.send(JSON.stringify(cachedStats));
+        } else {
             export_fns.getPositivityStatistics(function(posStats) {
                 export_fns.getCategoryStatistics(function(catStats) {
                     cachedStats = {
@@ -56,17 +59,14 @@ app.get('/statistics/data.json', function(req, res) {
                     res.send(JSON.stringify(cachedStats));
                 }, e => console.error('Unable to get category stats:', e));
             });
-        });
-    }
-});
+        }
+    });
 
-var mongoHandlerPromise = mongoHandler(dbname);
-
-io.on('connection', socket => {
-    console.log(`Socket ${socket.id} connected.`);
-
-    // Send five most recent (oldest first).
-    mongoHandlerPromise.then(function(export_fns) {
+    // Handle websockets.
+    io.on('connection', socket => {
+        console.log(`Socket ${socket.id} connected.`);
+    
+        // Send five most recent (oldest first).
         export_fns.retrieveRecent(5).then( function(docsArray) {
             for (var i = docsArray.length - 1; i >= 0; i--) {
 
@@ -76,39 +76,31 @@ io.on('connection', socket => {
                     comment['category'] = classification['category'];
                     socket.emit('comment', JSON.stringify(comment));
                 });
-                
-
             }
-       });
-    }, console.error);
+        });
 
-    socket.on('user_classification', (classification, commentId) => {
-        console.log("socket", socket.id, "has classified comment", commentId, "with classfication:\n", classification);
+        socket.on('user_classification', (classification, commentId) => {
+            console.log("socket", socket.id, "has classified comment", commentId, "with classfication:\n", classification);
+        });
+        
+        socket.on('disconnect', socket => {
+            console.log(`Socket ${socket.id} disconnected.`);
+        });
     });
 
-    socket.on('disconnect', socket => {
-        console.log(`Socket ${socket.id} disconnected.`);
-    });
-});
-
-snooper.watcher.getCommentWatcher('kanye')
+    // Get new comments from r/kanye in real time.
+    snooper.watcher.getCommentWatcher('kanye')
 	.on('comment', function(comment) {
+        export_fns.insertIfValid(comment).then(function(b) {
+            if(b) io.emit('comment', JSON.stringify(comment.data));
+        });
+    }).on('error', console.error);
 
-		mongoHandlerPromise.then(function(export_fns) {
-			export_fns.insertIfValid(comment).then(function(b) {
-				if(b) io.emit('comment', JSON.stringify(comment.data));
-			});
-		});
-
-	})
-	.on('error', console.error);
-
-// Server startup
-server.listen(+serverPort, '127.0.0.1', (err) => {
-  if (err) {
-    console.log(err.stack);
-    return;
-  }
-
-  console.log(`Kanye realtime node listening on http://127.0.0.1:${serverPort} started at: ${new Date()}.`);
+    // Server startup
+    server.listen(+serverPort, '127.0.0.1', (err) => {
+    if (err) {
+      console.error(err.stack);
+    }
+    console.log(`Kanye realtime node listening on http://127.0.0.1:${serverPort} started at: ${new Date()}.`);
+  });
 });

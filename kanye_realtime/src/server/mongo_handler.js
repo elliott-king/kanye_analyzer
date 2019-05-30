@@ -102,7 +102,6 @@ const export_fns = {
             name: comment_name,
             ip: ipAddr
         };
-        console.log('update', update);
 
         if (classification.positivity) update.is_wavy = classification.positivity;
         if (classification.category) update.category = classification.category;

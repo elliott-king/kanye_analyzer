@@ -80,7 +80,9 @@ mongoHandler(dbname).then(function(export_fns) {
         });
 
         socket.on('user_classification', (classification, commentId) => {
-            export_fns.updateUserClassification(commentId, classification, socket.handshake.address);
+            // x-real-ip header supplied by nginx setting.
+            var ipaddr = socket.handshake.headers['x-real-ip'] || socket.handshake.address;
+            export_fns.updateUserClassification(commentId, classification, ipaddr);
         });
         
         socket.on('disconnect', socket => {

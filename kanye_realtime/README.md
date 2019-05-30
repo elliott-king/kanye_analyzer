@@ -2,7 +2,7 @@
 - Consider moving to python on the backend.
 
 ### High Priority:
-- Add option to change nlp guesses.
+- Rerun python model every so often (taking into account user classification).
 - Change nlp classifier based on given input.
 - Better integrate python & node using rabbitMQ: https://medium.com/@HolmesLaurence/integrating-node-and-python-6b8454bfc272
 - Add more unit tests (start applying TDD).

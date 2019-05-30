@@ -7,7 +7,8 @@ var MongoClient = require('mongodb').MongoClient
     , db;
 
 const COMMENTS = 'wavy-comments'
-    , CATEGORIES = 'wavy-categories';
+    , CATEGORIES = 'wavy-categories'
+    , USER_CLASSIFICATION = 'user-classification';
     
 function isWavy(commentBody) {
 	const waves = [emoji.get('ocean'), 'wavy', 'wavey'];
@@ -69,11 +70,7 @@ const export_fns = {
 	insertIfValid: function(comment) {
         let collection = db.collection(COMMENTS);
 		var contents = comment.data.body;
-		// var user = comment.data.author;
 		var comment_name = comment.data.name
-		//if (!contents || !user) {
-		//	throw new // TODO: error, problem w/ comment json, include comment in err
-		//}
 
 
 		// first, check if contains wavyness
@@ -95,7 +92,25 @@ const export_fns = {
 				return false;
 			});
 		});
-	},
+    },
+    
+    updateUserClassification: function(comment_name, classification, ipAddr){
+        let  collection = db.collection(USER_CLASSIFICATION);
+        ipAddr = String(ipAddr);
+
+        let update = {
+            name: comment_name,
+            ip: ipAddr
+        };
+        console.log('update', update);
+
+        if (classification.positivity) update.is_wavy = classification.positivity;
+        if (classification.category) update.category = classification.category;
+
+        return collection.insertOne(update).then( 
+            (insert) => {console.log('Updated classification for', comment_name, 'by ipaddr', ipAddr, ':\n', classification)}, 
+            console.error);
+    },
 
 	retrieveRecent: function(limit=1) {
 		if (limit > 10) {

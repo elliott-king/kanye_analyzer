@@ -80,7 +80,7 @@ mongoHandler(dbname).then(function(export_fns) {
         });
 
         socket.on('user_classification', (classification, commentId) => {
-            console.log("socket", socket.id, "has classified comment", commentId, "with classfication:\n", classification);
+            export_fns.updateUserClassification(commentId, classification, socket.handshake.address);
         });
         
         socket.on('disconnect', socket => {

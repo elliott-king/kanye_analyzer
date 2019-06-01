@@ -1,4 +1,4 @@
 #!/bin/bash
 # start app locally
 
-node src/server/index.js --serverPort=8081 --dbname=kanye-test
+node src/server/app.js --serverPort=8081 --dbname=kanye-test

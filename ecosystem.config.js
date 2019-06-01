@@ -58,7 +58,7 @@ module.exports = {
 			script  : "./node_test/hello.js",
 		},{
 			name 	: "kanye_backend",
-			script  : "./kanye_realtime/src/server/index.js",
+			script  : "./kanye_realtime/src/server/app.js",
 			args    : "--serverPort=8080 --dbname=kanye",
 		}]
 };

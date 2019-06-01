@@ -12,7 +12,7 @@ const io = socketio(server);
 app.use(express.static(__dirname + '/../../dist/client'));
 
 var args = require('minimist')(process.argv.slice(2));
-const {serverPort = 8080, dbname = 'kanye', collName = 'wavy-comments'} = args;
+const {serverPort = 8080, dbname = 'kanye'} = args;
 
 var lastStatisticsTime = 0
     , cachedStats = {};

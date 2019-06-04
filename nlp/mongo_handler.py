@@ -27,6 +27,8 @@ def body_only(comment):
 def get_comment(comment_name, pretty=True):
     comment = comments.find_one({'name': comment_name})
     comment = short_comment(comment) if pretty else comment
+    if not comment:
+        raise ValueError('Could not find comment for name:', comment_name)
     return comment
 
 def get_recent_comments(limit=10, pretty=True):

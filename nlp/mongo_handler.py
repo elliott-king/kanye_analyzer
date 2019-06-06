@@ -7,9 +7,8 @@ import nltk # natural language toolkit
 import time
 
 client = MongoClient()
-db = client.kanye
-comments = db[constants.COMMENTS]
-categories = db[constants.TRAIN_CATEGORIES]
+DB_KANYE = 'kanye'
+DB_TEST = 'test'
 
 def short_comment(comment):
     ret = {}
@@ -24,30 +23,34 @@ def short_comment(comment):
 def body_only(comment):
     return comment['body']
 
-def get_comment(comment_name, pretty=True):
+def get_comment(comment_name, pretty=True, db=DB_KANYE):
+    comments = client[db][constants.COMMENTS]
     comment = comments.find_one({'name': comment_name})
-    comment = short_comment(comment) if pretty else comment
     if not comment:
         raise ValueError('Could not find comment for name:', comment_name)
+    comment = short_comment(comment) if pretty else comment
     return comment
 
-def get_recent_comments(limit=10, pretty=True):
-    # print("Current epoch time: " + str(int(time.time())))
+# gets <limit> most recent comments.
+def get_recent_comments(limit=10, pretty=True, db=DB_KANYE):
+    comments = client[db][constants.COMMENTS]
     ret = []
-    cursor = comments.find().sort('created_utc', pymongo.DESCENDING).limit(limit)
     for comment in comments.find().sort('created_utc', pymongo.DESCENDING).limit(limit):
         ret.append(comment if not pretty else short_comment(comment))
     return ret
 
-### Following handle comment categories
+### The following handle comment categories
 
-def is_updated(comment_name):
+def is_updated(comment_name, db=DB_KANYE):
+    categories = client[db][constants.TRAIN_CATEGORIES]
     comment = categories.find_one({'name': comment_name})
     return bool(comment)
 
-def update_comment_category(comment_name, category=None, is_wavy=None):
+def update_comment_category(comment_name, category=None, is_wavy=None, db=DB_KANYE):
+    categories = client[db][constants.TRAIN_CATEGORIES]
     # TODO: compress into one statement?
     # TODO: make this ACID compliant (both should fail or succeed together)
+    # TODO: verify that category & is_wavy are correct.
     if category:
         categories.find_one_and_update(
                 {'name': comment_name},
@@ -60,7 +63,8 @@ def update_comment_category(comment_name, category=None, is_wavy=None):
                 upsert=True)
 
 # returns command cursor
-def get_noncategorized_comments(limit=10):
+def get_noncategorized_comments(limit=10, db=DB_KANYE):
+    comments = client[db][constants.COMMENTS]
     # join logic taken from: https://stackoverflow.com/questions/8772936
     pipeline = [
         {'$lookup' : {
@@ -77,36 +81,30 @@ def get_noncategorized_comments(limit=10):
     return command_cursor
 
 # all categorized comments, and their categories
-def get_categorized_comments():
-    return categories.find({})
-#    pipeline = [
-#            {'$lookup': {
-#                'from': constants.TRAIN_CATEGORIES,
-#                'localField': 'name',
-#                'foreignField': 'name',
-#                'as': 'matched_docs',
-#            }}
-#    ]
-#    command_cursor = comments.aggregate(pipeline)
-#    return command_cursor
+def get_categorized_comments(db=DB_KANYE):
+    categories = client[db][constants.TRAIN_CATEGORIES]
+    return categories.find({'category': {'$exists': True}})
 
-def get_positivity_categorized_comments():
+def get_positivity_categorized_comments(db=DB_KANYE):
+    categories = client[db][constants.TRAIN_CATEGORIES]
     return categories.find({'is_wavy': {'$exists': True}})
 
 # NOTE: if a user refers to an external object, we are considering it external 
 # (even if the user is sort of referring to the link)
-def get_link_comments():
+def get_link_comments(db=DB_KANYE):
+    categories = client[db][constants.TRAIN_CATEGORIES]
     cursor = categories.find({"category": "link"})
     return cursor
 
-def get_count(category):
+def get_count(category, db=DB_KANYE):
+    categories = client[db][constants.TRAIN_CATEGORIES]
     return categories.find({"category": category}).count()
 
-def categories_counts():
+def categories_counts(db=DB_KANYE):
     metrics = {}
     running_sum = 0
-    for category in constants.CATEGORIES:
-        count = get_count(category)
+    for category in constants.CATEGORIES_TEXT:
+        count = get_count(category, db=db)
         metrics[category] = count
         running_sum += count
     

@@ -132,13 +132,12 @@ def comments_with_category():
     pairs = []
     # A labeled comment may not be labeled for both 'is_wavy' and 'category'
     for categorized_comment in cursor:
-        if 'category' in categorized_comment:
-            try:
-                full_comment = mongo_handler.get_comment(
-                    categorized_comment['name'], pretty=False)
-                pairs.append((full_comment, categorized_comment['category']))
-            except ValueError:
-                print('WARN: Could not find origin comment for:', categorized_comment['name'])
+        try:
+            full_comment = mongo_handler.get_comment(
+                categorized_comment['name'], pretty=False)
+            pairs.append((full_comment, categorized_comment['category']))
+        except ValueError:
+            print('WARN: Could not find origin comment for:', categorized_comment['name'])
     return pairs
 
 def comments_with_positivity():

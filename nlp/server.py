@@ -3,7 +3,6 @@ from flask import request
 
 import nlp
 import nltk
-import mongo_handler
 import constants
 
 import ast

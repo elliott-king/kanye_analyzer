@@ -5,12 +5,12 @@
 - Rerun python model every so often (taking into account user classification).
 - Change nlp classifier based on given input.
 - Better integrate python & node using rabbitMQ: https://medium.com/@HolmesLaurence/integrating-node-and-python-6b8454bfc272
-- Add more unit tests (start applying TDD).
 
 ### Med Priority:
 - Modify colors of pie chart to be more distinctive.
 - Re-label pie chart.
 - Python server should restart upon code change.
+- async nature of 'get_estimate' in app.js causes comments to not return to frontend in order (should just call for multiple comments @ once, then return answers for all in one go).
 
 ### Low priority:
 - In react select for user classification, user should have a null option.

@@ -2,7 +2,7 @@
 # TODO change name of collections in mongodb
 COMMENTS = 'wavy-comments'
 TRAIN_CATEGORIES = 'wavy-categories'
-USER_CLASSIFICATION = 'user-classification'
+USER_CLASSIFIED = 'user-classification'
 
 # Positive or negative use
 # Also can use both for one thing

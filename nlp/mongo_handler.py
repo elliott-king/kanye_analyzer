@@ -89,6 +89,48 @@ def get_positivity_categorized_comments(db=DB_KANYE):
     categories = client[db][constants.TRAIN_CATEGORIES]
     return categories.find({'is_wavy': {'$exists': True}})
 
+def identify_most_common_user_classification(all_user_input):
+
+    user_categorized_comments = {}
+    # First retrieve user input, and map the total inputs to each individual comment
+    for user_input in all_user_input:
+        if user_input['name'] not in user_categorized_comments:
+            user_categorized_comments[user_input['name']] = {
+                'is_wavy': [],
+                'category': [],
+            }
+
+        user_categorized_comments[user_input['name']]['is_wavy'].append(user_input.get('is_wavy'))
+        user_categorized_comments[user_input['name']]['category'].append(user_input.get('category'))
+
+    # Find the mode (most frequent) of each classification for each comment.
+    ret = []
+    for comment_name in user_categorized_comments:
+        comment = {'name': comment_name}
+        if 'is_wavy' in user_categorized_comments[comment_name]:
+            w =  max(user_categorized_comments[comment_name]['is_wavy'], key=user_categorized_comments[comment_name]['is_wavy'].count)
+            if w:
+                comment['is_wavy'] = w
+        if 'category' in user_categorized_comments[comment_name]:
+            w =  max(user_categorized_comments[comment_name]['category'], key=user_categorized_comments[comment_name]['category'].count)
+            if w:
+                comment['category'] = w
+        ret.append(comment)
+    
+    return ret
+
+
+def get_user_categorized_comments(db=DB_KANYE):
+    user_classified = client[db][constants.USER_CLASSIFIED]
+    all_user_input = user_classified.find({'category': {'$exists': True}})
+    return identify_most_common_user_classification(all_user_input)
+
+def get_user_positivity_categorized_comments(db=DB_KANYE):
+    user_classified = client[db][constants.USER_CLASSIFIED]
+    all_user_input = user_classified.find({'is_wavy': {'$exists': True}})
+    return identify_most_common_user_classification(all_user_input)
+
+
 # NOTE: if a user refers to an external object, we are considering it external 
 # (even if the user is sort of referring to the link)
 def get_link_comments(db=DB_KANYE):

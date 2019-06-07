@@ -45,6 +45,35 @@ is_wavy = {
     'created_utc': 10
 }
 
+# User classifications.
+user_classifications = [
+    {
+        'name': 'has_many_user_classifications',
+        'ip': 'testip1',
+        'is_wavy': 'wavy',
+        'category': 'poster' 
+    },{
+        'name': 'has_many_user_classifications',
+        'ip': 'testip2',
+        'is_wavy': 'not_wavy',
+        'category': 'poster' 
+    },{
+        'name': 'has_many_user_classifications',
+        'ip': 'testip3',
+        'is_wavy': 'wavy',
+        'category': 'kanye' 
+    },{
+        'name': 'has_one_classification',
+        'ip': 'testip4',
+        'is_wavy': 'wavy',
+        'category': 'poster'
+    },{
+        'name': 'only_classified_category',
+        'ip': 'testip5',
+        'category': 'link'
+    }
+]
+
 db = mongo_handler.DB_TEST
 
 class CommentsDBTest(unittest.TestCase):
@@ -91,12 +120,18 @@ class CategoriesDBTest(unittest.TestCase):
         comments_collection = self.client.test[constants.COMMENTS]
         comments_collection.insert_many([ long_comment, basic_comment, not_wavy, exists_in_db, is_wavy ])
 
+        user_categorized_collection = self.client.test[constants.USER_CLASSIFIED]
+        user_categorized_collection.insert_many(user_classifications)
+
     def tearDown(self):
         categories_collection = self.client.test[constants.TRAIN_CATEGORIES]
         categories_collection.delete_many({})
 
         comments_collection = self.client.test[constants.COMMENTS]
         comments_collection.delete_many({})
+
+        user_categorized_collection = self.client.test[constants.USER_CLASSIFIED]
+        user_categorized_collection.delete_many({})
     
     def testIn(self):
         # TODO: include comment existing in database
@@ -115,6 +150,25 @@ class CategoriesDBTest(unittest.TestCase):
         self.assertEqual(sum(1 for _ in command_cursor), 1)
 
     # TODO: test statistics
+
+    def testGetUserCategorized(self):
+        categorized_list = mongo_handler.get_user_categorized_comments(db=db)
+        self.assertEqual(len(categorized_list), 3)
+
+        for comment in categorized_list:
+            if comment['name'] == 'has_many_user_classifications':
+                self.assertEqual(comment['is_wavy'], 'wavy')
+                self.assertEqual(comment['category'], 'poster')
+            if comment['name'] == 'has_one_classification':
+                self.assertEqual(comment['is_wavy'], 'wavy')
+                self.assertEqual(comment['category'], 'poster')
+            if comment['name'] == 'only_classified_category':
+                self.assertEqual(comment['category'], 'link')
+                self.assertFalse('is_wavy' in comment)
+    
+    def testUserPositivityClassified(self):
+        categorized_list = mongo_handler.get_user_positivity_categorized_comments(db=db)
+        self.assertEqual(len(categorized_list), 2)
 
 if __name__ == '__main__':
     unittest.main()

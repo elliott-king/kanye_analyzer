@@ -34,8 +34,9 @@ def classify():
         comment = request.json
         print("Classifying comment:", comment['name'])
 
-        cat = category_classifier.classify(comment)
-        pos = positivity_classifier.classify(comment)
+        comment_features = nlp.get_features(comment)
+        cat = category_classifier.classify(comment_features)
+        pos = positivity_classifier.classify(comment_features)
 
         print('Category:', cat)
         print('Is wavy:', pos)

@@ -24,7 +24,8 @@ python3 cli:
 
     import mongo_handler
     comment = mongo_handler.get_comment(name)
-    classifier.classify(comment)
+    comment_features = nlp.get_features(comment)
+    classifier.classify(comment_features)
 '''
 
 # tokenize string:           nltk.word_tokenize(s)

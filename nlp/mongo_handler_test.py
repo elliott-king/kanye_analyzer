@@ -50,27 +50,27 @@ user_classifications = [
     {
         'name': 'has_many_user_classifications',
         'ip': 'testip1',
-        'is_wavy': 'wavy',
-        'category': 'poster' 
+        constants.POSITIVITY: 'wavy',
+        constants.CATEGORY: 'poster' 
     },{
         'name': 'has_many_user_classifications',
         'ip': 'testip2',
-        'is_wavy': 'not_wavy',
-        'category': 'poster' 
+        constants.POSITIVITY: 'not_wavy',
+        constants.CATEGORY: 'poster' 
     },{
         'name': 'has_many_user_classifications',
         'ip': 'testip3',
-        'is_wavy': 'wavy',
-        'category': 'kanye' 
+        constants.POSITIVITY: 'wavy',
+        constants.CATEGORY: 'kanye' 
     },{
         'name': 'has_one_classification',
         'ip': 'testip4',
-        'is_wavy': 'wavy',
-        'category': 'poster'
+        constants.POSITIVITY: 'wavy',
+        constants.CATEGORY: 'poster'
     },{
         'name': 'only_classified_category',
         'ip': 'testip5',
-        'category': 'link'
+        constants.CATEGORY: 'link'
     }
 ]
 
@@ -113,8 +113,8 @@ class CategoriesDBTest(unittest.TestCase):
         self.client = MongoClient()
         categories_collection = self.client.test[constants.TRAIN_CATEGORIES]
         categories_collection.insert_many([
-            {'name': 'in_db', 'category': 'poster'},
-            {'name': 'also_in_db', 'category': 'kanye', 'is_wavy': 'wavy'}
+            {'name': 'in_db', constants.CATEGORY: 'poster'},
+            {'name': 'also_in_db', constants.CATEGORY: 'kanye', constants.POSITIVITY: 'wavy'}
         ])
 
         comments_collection = self.client.test[constants.COMMENTS]
@@ -157,14 +157,14 @@ class CategoriesDBTest(unittest.TestCase):
 
         for comment in categorized_list:
             if comment['name'] == 'has_many_user_classifications':
-                self.assertEqual(comment['is_wavy'], 'wavy')
-                self.assertEqual(comment['category'], 'poster')
+                self.assertEqual(comment[constants.POSITIVITY], 'wavy')
+                self.assertEqual(comment[constants.CATEGORY], 'poster')
             if comment['name'] == 'has_one_classification':
-                self.assertEqual(comment['is_wavy'], 'wavy')
-                self.assertEqual(comment['category'], 'poster')
+                self.assertEqual(comment[constants.POSITIVITY], 'wavy')
+                self.assertEqual(comment[constants.CATEGORY], 'poster')
             if comment['name'] == 'only_classified_category':
-                self.assertEqual(comment['category'], 'link')
-                self.assertFalse('is_wavy' in comment)
+                self.assertEqual(comment[constants.CATEGORY], 'link')
+                self.assertFalse(constants.POSITIVITY in comment)
     
     def testUserPositivityClassified(self):
         categorized_list = mongo_handler.get_user_positivity_categorized_comments(db=db)

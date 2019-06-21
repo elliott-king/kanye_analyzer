@@ -54,12 +54,12 @@ def update_comment_category(comment_name, category=None, is_wavy=None, db=DB_KAN
     if category:
         categories.find_one_and_update(
                 {'name': comment_name},
-                {'$set': {'category': category}},
+                {'$set': {constants.CATEGORY: category}},
                 upsert=True)
     if is_wavy:
         categories.find_one_and_update(
                 {'name': comment_name},
-                {'$set': {'is_wavy': is_wavy}},
+                {'$set': {constants.POSITIVITY: is_wavy}},
                 upsert=True)
 
 # returns command cursor
@@ -83,11 +83,11 @@ def get_noncategorized_comments(limit=10, db=DB_KANYE):
 # all categorized comments, and their categories
 def get_categorized_comments(db=DB_KANYE):
     categories = client[db][constants.TRAIN_CATEGORIES]
-    return categories.find({'category': {'$exists': True}})
+    return categories.find({constants.CATEGORY: {'$exists': True}})
 
 def get_positivity_categorized_comments(db=DB_KANYE):
     categories = client[db][constants.TRAIN_CATEGORIES]
-    return categories.find({'is_wavy': {'$exists': True}})
+    return categories.find({constants.POSITIVITY: {'$exists': True}})
 
 def identify_most_common_user_classification(all_user_input):
 
@@ -96,25 +96,25 @@ def identify_most_common_user_classification(all_user_input):
     for user_input in all_user_input:
         if user_input['name'] not in user_categorized_comments:
             user_categorized_comments[user_input['name']] = {
-                'is_wavy': [],
-                'category': [],
+                constants.POSITIVITY: [],
+                constants.CATEGORY: [],
             }
 
-        user_categorized_comments[user_input['name']]['is_wavy'].append(user_input.get('is_wavy'))
-        user_categorized_comments[user_input['name']]['category'].append(user_input.get('category'))
+        user_categorized_comments[user_input['name']][constants.POSITIVITY].append(user_input.get(constants.POSITIVITY))
+        user_categorized_comments[user_input['name']][constants.CATEGORY].append(user_input.get(constants.CATEGORY))
 
     # Find the mode (most frequent) of each classification for each comment.
     ret = []
     for comment_name in user_categorized_comments:
         comment = {'name': comment_name}
-        if 'is_wavy' in user_categorized_comments[comment_name]:
-            w =  max(user_categorized_comments[comment_name]['is_wavy'], key=user_categorized_comments[comment_name]['is_wavy'].count)
+        if constants.POSITIVITY in user_categorized_comments[comment_name]:
+            w =  max(user_categorized_comments[comment_name][constants.POSITIVITY], key=user_categorized_comments[comment_name][constants.POSITIVITY].count)
             if w:
-                comment['is_wavy'] = w
-        if 'category' in user_categorized_comments[comment_name]:
-            w =  max(user_categorized_comments[comment_name]['category'], key=user_categorized_comments[comment_name]['category'].count)
+                comment[constants.POSITIVITY] = w
+        if constants.CATEGORY in user_categorized_comments[comment_name]:
+            w =  max(user_categorized_comments[comment_name][constants.CATEGORY], key=user_categorized_comments[comment_name][constants.CATEGORY].count)
             if w:
-                comment['category'] = w
+                comment[constants.CATEGORY] = w
         ret.append(comment)
     
     return ret
@@ -122,12 +122,12 @@ def identify_most_common_user_classification(all_user_input):
 
 def get_user_categorized_comments(db=DB_KANYE):
     user_classified = client[db][constants.USER_CLASSIFIED]
-    all_user_input = user_classified.find({'category': {'$exists': True}})
+    all_user_input = user_classified.find({constants.CATEGORY: {'$exists': True}})
     return identify_most_common_user_classification(all_user_input)
 
 def get_user_positivity_categorized_comments(db=DB_KANYE):
     user_classified = client[db][constants.USER_CLASSIFIED]
-    all_user_input = user_classified.find({'is_wavy': {'$exists': True}})
+    all_user_input = user_classified.find({constants.POSITIVITY: {'$exists': True}})
     return identify_most_common_user_classification(all_user_input)
 
 

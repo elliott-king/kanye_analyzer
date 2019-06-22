@@ -4,6 +4,7 @@ COMMENTS = 'wavy-comments'
 TRAIN_CATEGORIES = 'wavy-categories'
 USER_CLASSIFIED = 'user-classification'
 
+# Names for fields
 POSITIVITY = 'is_wavy'
 CATEGORY = 'category'
 

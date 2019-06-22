@@ -3,6 +3,7 @@ from bson.son import SON
 import constants
 import pymongo
 import pprint
+import operator
 import nltk # natural language toolkit
 import time
 
@@ -89,47 +90,85 @@ def get_positivity_categorized_comments(db=DB_KANYE):
     categories = client[db][constants.TRAIN_CATEGORIES]
     return categories.find({constants.POSITIVITY: {'$exists': True}})
 
-def identify_most_common_user_classification(all_user_input):
+def update_user_classification(comment_name, classification, db=DB_KANYE):
+    user_classified = client[db][constants.USER_CLASSIFIED]
+    doc = user_classified.find_one({'name': comment_name})
+    if doc:
+        if constants.POSITIVITY in classification:
+            user_classified.find_one_and_update(
+                {'name': comment_name}, 
+                {'$inc': { constants.POSITIVITY + '.' + classification[constants.POSITIVITY] : 1 } }
+            )
 
-    user_categorized_comments = {}
-    # First retrieve user input, and map the total inputs to each individual comment
-    for user_input in all_user_input:
-        if user_input['name'] not in user_categorized_comments:
-            user_categorized_comments[user_input['name']] = {
-                constants.POSITIVITY: [],
-                constants.CATEGORY: [],
-            }
+        if constants.CATEGORY in classification:
+            user_classified.find_one_and_update(
+                {'name': comment_name}, 
+                {'$inc': { constants.CATEGORY + '.' + classification[constants.CATEGORY] : 1 } }
+            )
+    else:
+        doc = { 
+            'name': comment_name,
+            constants.POSITIVITY: {},
+            constants.CATEGORY: {}
+        }
+        for key in constants.POSITIVITY_TEXT:
+            doc[constants.POSITIVITY][key] = 0
+        for key in constants.CATEGORIES_TEXT:
+            doc[constants.CATEGORY][key] = 0
 
-        user_categorized_comments[user_input['name']][constants.POSITIVITY].append(user_input.get(constants.POSITIVITY))
-        user_categorized_comments[user_input['name']][constants.CATEGORY].append(user_input.get(constants.CATEGORY))
+        if constants.POSITIVITY in classification:
+            doc[constants.POSITIVITY][classification[constants.POSITIVITY]] += 1
+        if constants.CATEGORY in classification:
+            doc[constants.CATEGORY][classification[constants.CATEGORY]] += 1
 
-    # Find the mode (most frequent) of each classification for each comment.
-    ret = []
-    for comment_name in user_categorized_comments:
-        comment = {'name': comment_name}
-        if constants.POSITIVITY in user_categorized_comments[comment_name]:
-            w =  max(user_categorized_comments[comment_name][constants.POSITIVITY], key=user_categorized_comments[comment_name][constants.POSITIVITY].count)
-            if w:
-                comment[constants.POSITIVITY] = w
-        if constants.CATEGORY in user_categorized_comments[comment_name]:
-            w =  max(user_categorized_comments[comment_name][constants.CATEGORY], key=user_categorized_comments[comment_name][constants.CATEGORY].count)
-            if w:
-                comment[constants.CATEGORY] = w
-        ret.append(comment)
+        user_classified.insert_one(doc).acknowledged
+
+def get_single_comment_classification_totals(comment_name, db=DB_KANYE):
+    user_classified = client[db][constants.USER_CLASSIFIED]
+    totals =  user_classified.find_one({'name': comment_name})
+    if not totals: 
+        raise ValueError('Comment ' + comment_name + ' has not been classified by a user.')
+    return totals
+
+def get_single_user_classification(comment_name, db=DB_KANYE):
+    totals = get_single_comment_classification_totals(comment_name, db=db)
+    comment = { 'name': comment_name }
     
+    # Not gonna worry about ties.
+    # Finding key for max value taken from:
+    # https://stackoverflow.com/questions/268272/getting-key-with-maximum-value-in-dictionary
+    positivity = max(totals[constants.POSITIVITY].items(), key=operator.itemgetter(1))[0]
+    category = max(totals[constants.CATEGORY].items(), key=operator.itemgetter(1))[0]
+
+    if totals[constants.POSITIVITY][positivity] > 0:
+        comment[constants.POSITIVITY] = positivity
+    if totals[constants.CATEGORY][category] > 0:
+        comment[constants.CATEGORY] = category
+
+    return comment
+
+# Much copy paste. Wow reuse code. Def refactor.
+def get_all_user_classified_comments(db=DB_KANYE):
+    user_classified = client[db][constants.USER_CLASSIFIED]
+    user_classified_totals = user_classified.find({})
+
+    ret = []
+    for totals in user_classified_totals:
+        comment = { 'name': totals['name'] }
+        
+        # Not gonna worry about ties.
+        # Finding key for max value taken from:
+        # https://stackoverflow.com/questions/268272/getting-key-with-maximum-value-in-dictionary
+        positivity = max(totals[constants.POSITIVITY].items(), key=operator.itemgetter(1))[0]
+        category = max(totals[constants.CATEGORY].items(), key=operator.itemgetter(1))[0]
+
+        if totals[constants.POSITIVITY][positivity] > 0:
+            comment[constants.POSITIVITY] = positivity
+        if totals[constants.CATEGORY][category] > 0:
+            comment[constants.CATEGORY] = category
+        ret.append(comment)
+
     return ret
-
-
-def get_user_categorized_comments(db=DB_KANYE):
-    user_classified = client[db][constants.USER_CLASSIFIED]
-    all_user_input = user_classified.find({constants.CATEGORY: {'$exists': True}})
-    return identify_most_common_user_classification(all_user_input)
-
-def get_user_positivity_categorized_comments(db=DB_KANYE):
-    user_classified = client[db][constants.USER_CLASSIFIED]
-    all_user_input = user_classified.find({constants.POSITIVITY: {'$exists': True}})
-    return identify_most_common_user_classification(all_user_input)
-
 
 # NOTE: if a user refers to an external object, we are considering it external 
 # (even if the user is sort of referring to the link)

@@ -128,7 +128,7 @@ def get_features(comment):
     return features
 
 def comments_with_category():
-    cursor = mongo_handler.get_categorized_comments()
+    cursor = mongo_handler.get_categorized_classified_comments()
 
     pairs = []
     # A labeled comment may not be labeled for both 'is_wavy' and 'category'
@@ -142,7 +142,7 @@ def comments_with_category():
     return pairs
 
 def comments_with_positivity():
-    cursor = mongo_handler.get_positivity_categorized_comments()
+    cursor = mongo_handler.get_positivity_classified_comments()
 
     pairs = []
     for categorized_comment in cursor:

@@ -82,11 +82,11 @@ def get_noncategorized_comments(limit=10, db=DB_KANYE):
     return command_cursor
 
 # all categorized comments, and their categories
-def get_categorized_comments(db=DB_KANYE):
+def get_categorized_classified_comments(db=DB_KANYE):
     categories = client[db][constants.TRAIN_CATEGORIES]
     return categories.find({constants.CATEGORY: {'$exists': True}})
 
-def get_positivity_categorized_comments(db=DB_KANYE):
+def get_positivity_classified_comments(db=DB_KANYE):
     categories = client[db][constants.TRAIN_CATEGORIES]
     return categories.find({constants.POSITIVITY: {'$exists': True}})
 

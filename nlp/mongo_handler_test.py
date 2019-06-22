@@ -147,10 +147,10 @@ class CategoriesDBTest(unittest.TestCase):
         self.assertEqual(sum(1 for _ in command_cursor), 5)
 
     def testGetCategorized(self):
-        command_cursor = mongo_handler.get_categorized_comments(db=db)
+        command_cursor = mongo_handler.get_categorized_classified_comments(db=db)
         self.assertEqual(sum(1 for _ in command_cursor), 2)
 
-        command_cursor = mongo_handler.get_positivity_categorized_comments(db=db)
+        command_cursor = mongo_handler.get_positivity_classified_comments(db=db)
         self.assertEqual(sum(1 for _ in command_cursor), 1)
 
     # TODO: test statistics

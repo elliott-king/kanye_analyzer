@@ -42,6 +42,9 @@ python3 cli:
 # link_id, link_permalink (overall thread id & permalink, includes reddit.com)
 
 def get_features(comment):
+    if not comment:
+        raise ValueError('Cannot extract features for empty comment.')
+
     body = comment['body']
     body_lowercase = body.lower()
 

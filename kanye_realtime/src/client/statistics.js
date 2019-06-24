@@ -1,4 +1,5 @@
 import Chart from 'chart.js';
+import pattern from 'patternomaly';
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -40,7 +41,7 @@ function displayContent() {
                     labels: Object.keys(data.category_statistics),
                     datasets: [{
                         data: Object.values(data.category_statistics),
-                        backgroundColor: [...Array(10).keys()].map(x => rainbow(10, x)),
+                        backgroundColor: pattern.generate([...Array(10).keys()].map(x => rainbow(10, x))),
                         // backgroundColor: ["#F7464A", "#46BFBD", "#FDB45C", "#949FB1", "#4D5360"],
                         // backgroundColor: []
                         // hoverBackgroundColor: ["#FF5A5E", "#5AD3D1", "#FFC870", "#A8B3C5", "#616774"]

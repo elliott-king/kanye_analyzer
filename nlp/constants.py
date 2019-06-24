@@ -1,3 +1,7 @@
+# mongodb database names
+DB_KANYE = 'kanye'
+DB_TEST = 'test'
+
 # collections for mongodb
 # TODO change name of collections in mongodb
 COMMENTS = 'wavy-comments'

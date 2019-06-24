@@ -100,7 +100,7 @@ user_classifications = [
     }
 ]
 
-db = mongo_handler.DB_TEST
+db = constants.DB_TEST
 
 class CommentsDBTest(unittest.TestCase):
     def setUp(self):
@@ -227,7 +227,7 @@ class MetricsDisplay(unittest.TestCase):
         self.client.test[constants.TRAIN_CATEGORIES].delete_many({})
 
     def testMetricsDisplay(self):
-        metrics = mongo_handler.categories_counts(db=mongo_handler.DB_TEST)
+        metrics = mongo_handler.categories_counts(db=db)
 
         total_pct = 0
         total_count = 0

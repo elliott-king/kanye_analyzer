@@ -89,28 +89,11 @@ def get_features(comment):
 #    features['pcnt unique'] = int(float(unique_token_count) 
 #            / float(len(tokens)) * 100)
 
-    # It is useful to know if certain emoji are present
-    useful_emoji = [
-            ":no_entry_sign:",
-            ":mountain:",
-            ":fire:",
-            ":negative_squared_cross_mark:",
-            ":x:",
-            ":no_good:",
-    ]
-    for e in useful_emoji:
+    for e in constants.USEFUL_EMOJI:
         features['emoji ({})'.format(emoji.emojize(e, use_aliases=True))] \
             = emoji.emojize(e, use_aliases=True) in comment['body']
 
-    useful_words = [
-            'you',
-            'op',
-            'not',
-            'unwavy',
-            'Kanye',
-            '/s'
-    ]
-    for w in useful_words:
+    for w in constants.USEFUL_WORDS:
         features['contains \'{}\''.format(w)] = w in body_lowercase
 
     named_entities = 0

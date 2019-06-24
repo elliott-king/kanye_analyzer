@@ -33,3 +33,22 @@ CATEGORIES_TEXT = {
     'kanye': 'the man himself',
     'copypasta': 'nothing. It is a copypasta',
 }
+
+# It is useful to know if certain emoji or words are present
+USEFUL_EMOJI = [
+        ":no_entry_sign:",
+        ":mountain:",
+        ":fire:",
+        ":negative_squared_cross_mark:",
+        ":x:",
+        ":no_good:",
+]
+
+USEFUL_WORDS = [
+        'you',
+        'op',
+        'not',
+        'unwavy',
+        'Kanye',
+        '/s'
+]

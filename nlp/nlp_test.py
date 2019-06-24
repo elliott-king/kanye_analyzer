@@ -27,8 +27,6 @@ basic_comment =  {
     'created_utc': 1541259203,
     'name': 't1_e8z9okx'}
 
-db = mongo_handler.DB_KANYE
-
 class FeatureExtractorTest(unittest.TestCase):
 
     def testEmptyCommentExtractor(self):

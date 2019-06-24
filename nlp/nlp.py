@@ -113,47 +113,19 @@ def get_features(comment):
 
     return features
 
-def comments_with_category():
-    cursor = mongo_handler.get_categorized_classified_comments()
-
-    pairs = []
-    # A labeled comment may not be labeled for both 'is_wavy' and 'category'
-    for categorized_comment in cursor:
-        try:
-            full_comment = mongo_handler.get_comment(
-                categorized_comment['name'], pretty=False)
-            pairs.append((full_comment, categorized_comment['category']))
-        except ValueError:
-            print('WARN: Could not find origin comment for:', categorized_comment['name'])
-    return pairs
-
-def comments_with_positivity():
-    cursor = mongo_handler.get_positivity_classified_comments()
-
-    pairs = []
-    for categorized_comment in cursor:
-        if 'is_wavy' in categorized_comment:
-            try:
-                full_comment = mongo_handler.get_comment(
-                    categorized_comment['name'], pretty=False)
-                pairs.append((full_comment, categorized_comment['is_wavy']))
-            except ValueError:
-                print('WARN: Could not find origin comment for:', categorized_comment['name'])
-    return pairs
-
 def featureset(categorized_comments):
     return [(get_features(comment), category) 
             for (comment, category) in categorized_comments]
 
 def get_test_train_sets_positivity():
-    labeled_set = comments_with_positivity()
+    labeled_set = mongo_handler.classified_comments_with_positivity()
     random.shuffle(labeled_set)
     train_set = nltk.classify.apply_features(get_features, labeled_set[:500])
     test_set = nltk.classify.apply_features(get_features, labeled_set[500:])
     return test_set, train_set
 
 def get_test_train_sets_category():
-    labeled_set = comments_with_category()
+    labeled_set = mongo_handler.classified_comments_with_category()
     random.shuffle(labeled_set)
     train_set = nltk.classify.apply_features(get_features, labeled_set[:500])
     test_set = nltk.classify.apply_features(get_features, labeled_set[500:])
@@ -178,7 +150,6 @@ def category_metrics_display():
                 category, count, pct)
     s += 'TOTAL: {}'.format(total)
     return s
-        
 
 def request_input_on_cursor(comment):
     s = '\nThe categories are:\n' + '\n'.join(

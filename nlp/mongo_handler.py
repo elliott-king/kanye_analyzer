@@ -191,7 +191,34 @@ def categories_counts():
         val = metrics[category]
         metrics[category] = (val, int(float(val)/float(running_sum) * 100))
     return metrics
-        
+
+def _combine_official_and_user_classified_comments(function, field):
+    pairs = []
+    used_names = set() # In case the users classify a comment that I did myself.
+
+    # comments that I have classified
+    cursor = function()
+    for classified_comment in cursor:
+        full_comment = get_comment(classified_comment['name'], pretty=False)
+        pairs.append((full_comment, classified_comment[field]))
+        used_names.add(classified_comment['name'])
+
+    # Comments that users have classified.
+    user_classified = get_all_user_classified_comments()
+    for user_classified_comment in user_classified:
+    # A labeled comment may not always be labeled for both 'is_wavy' and 'category'
+        if field in user_classified_comment and user_classified_comment['name'] not in used_names:
+            full_comment = get_comment(user_classified_comment ['name'], pretty=False)
+            pairs.append((full_comment, user_classified_comment[field]))
+            used_names.add(user_classified_comment['name'])
+    
+    return pairs
+
+def classified_comments_with_category():
+    return _combine_official_and_user_classified_comments(get_categorized_classified_comments, constants.CATEGORY)
+
+def classified_comments_with_positivity():
+    return _combine_official_and_user_classified_comments(get_positivity_classified_comments, constants.POSITIVITY)
 
 if __name__ == "__main__":
     pprint.pprint(get_recent_comments())

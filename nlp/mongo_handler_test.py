@@ -58,7 +58,7 @@ classified_comments = [
     {'name': 't1_e6px1gk', 'category': 'misc'},
     {'name': 't1_e6px4pt', 'category': 'link', 'is_wavy': 'wavy'},
     {'name': 't1_enmx6kt', 'category': 'poster', 'is_wavy': 'wavy'},
-    {'name': 'new_to_db', 'category': 'link', 'is_wavy': 'wavy'}
+    {'name': 'dupe_to_user_classified', 'category': 'link', 'is_wavy': 'wavy'}
 ]
 
 # User classifications.
@@ -85,7 +85,7 @@ user_classifications = [
             constants.CATEGORY: 'kanye' 
         }
     },{
-        'name': 'has_one_classification',
+        'name': 'dupe_to_user_classified',
         'ip': 'testip4',
         'classification': {
             constants.POSITIVITY: 'wavy',
@@ -237,6 +237,75 @@ class MetricsDisplay(unittest.TestCase):
         self.assertEqual(total_count, 12)
         self.assertGreaterEqual(total_pct, 98)
         self.assertLessEqual(total_pct, 100)
+
+class CombineCommentsWithClassification(unittest.TestCase):
+
+    def setUp(self):
+
+        for comment in classified_comments:
+            positivity = comment['is_wavy'] if 'is_wavy' in comment else None
+            mongo_handler.update_comment_category(comment['name'], category=comment['category'], is_wavy=positivity)
+
+        client = MongoClient()
+        comments_collection = client.test[constants.COMMENTS]
+        for comment in classified_comments:
+            c = {'body': 'some body', 'name': comment['name']}
+            comments_collection.insert_one(c)
+
+    def tearDown(self):
+        client = MongoClient()
+
+        categories_collection = client.test[constants.TRAIN_CATEGORIES]
+        categories_collection.delete_many({})
+
+        comments_collection = client.test[constants.COMMENTS]
+        comments_collection.delete_many({})
+
+    def testOnlyOfficialComments(self):
+
+        categorized = mongo_handler.classified_comments_with_category()
+        positivized = mongo_handler.classified_comments_with_positivity()
+
+        self.assertEqual(len(categorized), len(classified_comments))
+        self.assertEqual(len(positivized), len(classified_comments) - 7)
+
+        for comment, category in categorized:
+            self.assertIn(category, constants.CATEGORIES_TEXT)
+            self.assertIn('body', comment)
+            self.assertIn('name', comment)
+        
+        for comment, positivity in positivized:
+            self.assertIn(positivity, constants.POSITIVITY_TEXT)
+            self.assertIn('body', comment)
+            self.assertIn('name', comment)
+
+    # then add some user-classified comments
+    def testWithUserClassification(self):
+        client = MongoClient()
+        comments_collection = client.test[constants.COMMENTS]
+
+        for uc in user_classifications:
+            mongo_handler.update_user_classification(uc['name'], uc['classification'])
+            # creates dupe for the 'dupe_to_user_classified' but that is not important.
+            c = {'body': 'different body for the user classifications', 'name': uc['name']}
+            comments_collection.insert_one(c)
+        
+        categorized = mongo_handler.classified_comments_with_category()
+        positivized = mongo_handler.classified_comments_with_positivity()
+
+        self.assertEqual(len(categorized), len(classified_comments) + len(user_classifications) - 1 - 2)
+        self.assertEqual(len(positivized), len(user_classifications) + len(classified_comments) - 7 - 1 - 2 - 1)
+
+        for comment, category in categorized:
+            self.assertIn(category, constants.CATEGORIES_TEXT)
+            self.assertIn('body', comment)
+            self.assertIn('name', comment)
+        
+        for comment, positivity in positivized:
+            self.assertIn(positivity, constants.POSITIVITY_TEXT)
+            self.assertIn('body', comment)
+            self.assertIn('name', comment)
+
 
 if __name__ == '__main__':
     constants.DB_KANYE = constants.DB_TEST

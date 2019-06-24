@@ -54,7 +54,7 @@ mongoHandler(dbname).then(function(export_fns) {
                     cachedStats = {
                         "positivity_statistics": posStats,
                         "category_statistics": catStats
-                    }
+                    };
                     lastStatisticsTime = Date.now();
                     res.send(JSON.stringify(cachedStats));
                 }, e => console.error('Unable to get category stats:', e));
@@ -82,7 +82,20 @@ mongoHandler(dbname).then(function(export_fns) {
         socket.on('user_classification', (classification, commentId) => {
             // x-real-ip header supplied by nginx setting.
             var ipaddr = socket.handshake.headers['x-real-ip'] || socket.handshake.address;
-            export_fns.updateUserClassification(commentId, classification, ipaddr);
+            request({
+                url: 'http://localhost:5000/user_classification',
+                method: "POST",
+                json: {comment_name: commentId, ipaddr: ipaddr, classification: classification}
+            }, function(error, response, body) {
+
+                console.log('Updating user classification for comment:', commentId);
+        
+                if(error) { console.error('error:', error); }
+                console.log('Status code:', response && response.statusCode, 'body:', body);
+                if (!body) {
+                    body = "Unable to create estimate for comment.";
+                }
+            });
         });
         
         socket.on('disconnect', socket => {

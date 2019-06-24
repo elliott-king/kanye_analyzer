@@ -4,11 +4,13 @@ from flask import request
 import nlp
 import nltk
 import constants
+import mongo_handler
 
 import ast
 import json
 
 '''
+set FLASK_APP=server.py (on windows)
 export FLASK_APP=server.py
 py -m flask run
 '''
@@ -32,14 +34,13 @@ def hello_world():
 def classify():
     if request.method == 'POST':
         comment = request.json
-        print("Classifying comment:", comment['name'])
+        print("Getting comment classification:", comment['name'])
 
         comment_features = nlp.get_features(comment)
         cat = category_classifier.classify(comment_features)
         pos = positivity_classifier.classify(comment_features)
 
-        print('Category:', cat)
-        print('Is wavy:', pos)
+        print('Comment', comment['name'], 'is referring to', cat, 'and', pos)
         
         return json.dumps({
                 'category': constants.CATEGORIES_TEXT[cat], 
@@ -47,3 +48,18 @@ def classify():
 
     return "Invalid request."
 
+# According to SO, python's json module should be safe enough for untrusted input. 
+# We should not, however, allow user-crafted JSON as a full query.
+# https://stackoverflow.com/questions/7278238/sanitizing-inputs-to-mongodb
+@app.route('/user_classification', methods=['POST'])
+def user_classification():
+    if request.method == 'POST':
+        comment_name, ipaddr = request.json['comment_name'], request.json['ipaddr']
+        classification = request.json['classification']
+
+        print("Applying user classification", classification, "to comment", comment_name)
+        mongo_handler.update_user_classification(comment_name, classification)
+        return("Applying user classification to comment " + comment_name)
+
+
+    return "Invalid request - expecting POST."

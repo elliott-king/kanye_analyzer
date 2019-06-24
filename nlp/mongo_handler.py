@@ -166,6 +166,7 @@ def get_all_user_classified_comments():
             comment[constants.CATEGORY] = category
         ret.append(comment)
 
+    print("Applied user classification to", len(ret), "comments")
     return ret
 
 # NOTE: if a user refers to an external object, we are considering it external 

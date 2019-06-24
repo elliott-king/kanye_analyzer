@@ -93,23 +93,6 @@ const export_fns = {
 			});
 		});
     },
-    
-    updateUserClassification: function(comment_name, classification, ipAddr){
-        let  collection = db.collection(USER_CLASSIFICATION);
-        ipAddr = String(ipAddr);
-
-        let update = {
-            name: comment_name,
-            ip: ipAddr
-        };
-
-        if (classification.positivity) update.is_wavy = classification.positivity;
-        if (classification.category) update.category = classification.category;
-
-        return collection.insertOne(update).then( 
-            (insert) => {console.log('Updated classification for', comment_name, 'by ipaddr', ipAddr, ':\n', classification)}, 
-            console.error);
-    },
 
 	retrieveRecent: function(limit=1) {
 		if (limit > 10) {

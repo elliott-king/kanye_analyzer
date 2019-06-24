@@ -22,8 +22,8 @@ def short_comment(comment):
 def body_only(comment):
     return comment['body']
 
-def get_comment(comment_name, pretty=True, db=constants.DB_KANYE):
-    comments = client[db][constants.COMMENTS]
+def get_comment(comment_name, pretty=True):
+    comments = client[constants.DB_KANYE][constants.COMMENTS]
     comment = comments.find_one({'name': comment_name})
     if not comment:
         raise ValueError('Could not find comment for name:', comment_name)
@@ -31,8 +31,8 @@ def get_comment(comment_name, pretty=True, db=constants.DB_KANYE):
     return comment
 
 # gets <limit> most recent comments.
-def get_recent_comments(limit=10, pretty=True, db=constants.DB_KANYE):
-    comments = client[db][constants.COMMENTS]
+def get_recent_comments(limit=10, pretty=True):
+    comments = client[constants.DB_KANYE][constants.COMMENTS]
     ret = []
     for comment in comments.find().sort('created_utc', pymongo.DESCENDING).limit(limit):
         ret.append(comment if not pretty else short_comment(comment))
@@ -40,13 +40,13 @@ def get_recent_comments(limit=10, pretty=True, db=constants.DB_KANYE):
 
 ### The following handle comment categories
 
-def is_updated(comment_name, db=constants.DB_KANYE):
-    categories = client[db][constants.TRAIN_CATEGORIES]
+def is_updated(comment_name):
+    categories = client[constants.DB_KANYE][constants.TRAIN_CATEGORIES]
     comment = categories.find_one({'name': comment_name})
     return bool(comment)
 
-def update_comment_category(comment_name, category=None, is_wavy=None, db=constants.DB_KANYE):
-    categories = client[db][constants.TRAIN_CATEGORIES]
+def update_comment_category(comment_name, category=None, is_wavy=None):
+    categories = client[constants.DB_KANYE][constants.TRAIN_CATEGORIES]
     # TODO: compress into one statement?
     # TODO: make this ACID compliant (both should fail or succeed together)
     # TODO: verify that category & is_wavy are correct.
@@ -62,8 +62,8 @@ def update_comment_category(comment_name, category=None, is_wavy=None, db=consta
                 upsert=True)
 
 # returns command cursor
-def get_noncategorized_comments(limit=10, db=constants.DB_KANYE):
-    comments = client[db][constants.COMMENTS]
+def get_noncategorized_comments(limit=10):
+    comments = client[constants.DB_KANYE][constants.COMMENTS]
     # join logic taken from: https://stackoverflow.com/questions/8772936
     pipeline = [
         {'$lookup' : {
@@ -80,16 +80,16 @@ def get_noncategorized_comments(limit=10, db=constants.DB_KANYE):
     return command_cursor
 
 # all categorized comments, and their categories
-def get_categorized_classified_comments(db=constants.DB_KANYE):
-    categories = client[db][constants.TRAIN_CATEGORIES]
+def get_categorized_classified_comments():
+    categories = client[constants.DB_KANYE][constants.TRAIN_CATEGORIES]
     return categories.find({constants.CATEGORY: {'$exists': True}})
 
-def get_positivity_classified_comments(db=constants.DB_KANYE):
-    categories = client[db][constants.TRAIN_CATEGORIES]
+def get_positivity_classified_comments():
+    categories = client[constants.DB_KANYE][constants.TRAIN_CATEGORIES]
     return categories.find({constants.POSITIVITY: {'$exists': True}})
 
-def update_user_classification(comment_name, classification, db=constants.DB_KANYE):
-    user_classified = client[db][constants.USER_CLASSIFIED]
+def update_user_classification(comment_name, classification):
+    user_classified = client[constants.DB_KANYE][constants.USER_CLASSIFIED]
     doc = user_classified.find_one({'name': comment_name})
     if doc:
         if constants.POSITIVITY in classification:
@@ -121,15 +121,15 @@ def update_user_classification(comment_name, classification, db=constants.DB_KAN
 
         user_classified.insert_one(doc).acknowledged
 
-def get_single_comment_classification_totals(comment_name, db=constants.DB_KANYE):
-    user_classified = client[db][constants.USER_CLASSIFIED]
+def get_single_comment_classification_totals(comment_name):
+    user_classified = client[constants.DB_KANYE][constants.USER_CLASSIFIED]
     totals =  user_classified.find_one({'name': comment_name})
     if not totals: 
         raise ValueError('Comment ' + comment_name + ' has not been classified by a user.')
     return totals
 
-def get_single_user_classification(comment_name, db=constants.DB_KANYE):
-    totals = get_single_comment_classification_totals(comment_name, db=db)
+def get_single_user_classification(comment_name):
+    totals = get_single_comment_classification_totals(comment_name)
     comment = { 'name': comment_name }
     
     # Not gonna worry about ties.
@@ -146,8 +146,8 @@ def get_single_user_classification(comment_name, db=constants.DB_KANYE):
     return comment
 
 # Much copy paste. Wow reuse code. Def refactor.
-def get_all_user_classified_comments(db=constants.DB_KANYE):
-    user_classified = client[db][constants.USER_CLASSIFIED]
+def get_all_user_classified_comments():
+    user_classified = client[constants.DB_KANYE][constants.USER_CLASSIFIED]
     user_classified_totals = user_classified.find({})
 
     ret = []
@@ -170,20 +170,20 @@ def get_all_user_classified_comments(db=constants.DB_KANYE):
 
 # NOTE: if a user refers to an external object, we are considering it external 
 # (even if the user is sort of referring to the link)
-def get_link_comments(db=constants.DB_KANYE):
-    categories = client[db][constants.TRAIN_CATEGORIES]
+def get_link_comments():
+    categories = client[constants.DB_KANYE][constants.TRAIN_CATEGORIES]
     cursor = categories.find({"category": "link"})
     return cursor
 
-def get_count(category, db=constants.DB_KANYE):
-    categories = client[db][constants.TRAIN_CATEGORIES]
+def get_count(category):
+    categories = client[constants.DB_KANYE][constants.TRAIN_CATEGORIES]
     return categories.find({"category": category}).count()
 
-def categories_counts(db=constants.DB_KANYE):
+def categories_counts():
     metrics = {}
     running_sum = 0
     for category in constants.CATEGORIES_TEXT:
-        count = get_count(category, db=db)
+        count = get_count(category)
         metrics[category] = count
         running_sum += count
     

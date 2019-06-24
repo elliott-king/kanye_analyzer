@@ -100,8 +100,6 @@ user_classifications = [
     }
 ]
 
-db = constants.DB_TEST
-
 class CommentsDBTest(unittest.TestCase):
     def setUp(self):
         client = MongoClient()
@@ -114,22 +112,22 @@ class CommentsDBTest(unittest.TestCase):
         comments_collection.delete_many({})
 
     def testSimple(self):
-        comment = mongo_handler.get_comment('t1_e8z9okx', pretty=False, db=db)
+        comment = mongo_handler.get_comment('t1_e8z9okx', pretty=False)
         self.assertEqual(comment['author'], 'HangTheDJHoldTheMayo')
 
         with self.assertRaises(ValueError):
-            mongo_handler.get_comment('comment_dne', db=db)
+            mongo_handler.get_comment('comment_dne')
 
     def testShortener(self):
-        comment = mongo_handler.get_comment('t1_e6oq65l', db=db)
+        comment = mongo_handler.get_comment('t1_e6oq65l')
         self.assertEqual(len(comment), 4)
 
     def testBodyOnly(self):
-        comment = mongo_handler.body_only(mongo_handler.get_comment('t1_e8z9okx', db=db))
+        comment = mongo_handler.body_only(mongo_handler.get_comment('t1_e8z9okx'))
         self.assertEqual(comment, basic_comment['body'])
 
     def testGetRecent(self):
-        comments = mongo_handler.get_recent_comments(limit=2, db=db)
+        comments = mongo_handler.get_recent_comments(limit=2)
         self.assertEqual(comments[0]['author'], basic_comment['author'])
         self.assertEqual(comments[1]['author'], exists_in_db['author'])
 
@@ -155,18 +153,18 @@ class CategoriesDBTest(unittest.TestCase):
     
     def testIn(self):
         # TODO: include comment existing in database
-        self.assertFalse(mongo_handler.is_updated('zarglbargl', db=db))
-        self.assertTrue(mongo_handler.is_updated('in_db', db=db))
+        self.assertFalse(mongo_handler.is_updated('zarglbargl'))
+        self.assertTrue(mongo_handler.is_updated('in_db'))
 
     def testGetNoncategorized(self):
-        command_cursor = mongo_handler.get_noncategorized_comments(db=db)
+        command_cursor = mongo_handler.get_noncategorized_comments()
         self.assertEqual(sum(1 for _ in command_cursor), 5)
 
     def testGetCategorized(self):
-        command_cursor = mongo_handler.get_categorized_classified_comments(db=db)
+        command_cursor = mongo_handler.get_categorized_classified_comments()
         self.assertEqual(sum(1 for _ in command_cursor), 2)
 
-        command_cursor = mongo_handler.get_positivity_classified_comments(db=db)
+        command_cursor = mongo_handler.get_positivity_classified_comments()
         self.assertEqual(sum(1 for _ in command_cursor), 1)
 
     # TODO: test statistics
@@ -175,7 +173,7 @@ class UserClassificationTest(unittest.TestCase):
 
     def setUp(self):
         for uc in user_classifications:
-            mongo_handler.update_user_classification(uc['name'], uc['classification'], db=db)
+            mongo_handler.update_user_classification(uc['name'], uc['classification'])
         
     def tearDown(self):
         client = MongoClient()
@@ -183,7 +181,7 @@ class UserClassificationTest(unittest.TestCase):
         user_categorized_collection.delete_many({})
 
     def testInsert(self):
-        many = mongo_handler.get_single_comment_classification_totals('has_many_user_classifications', db=db)
+        many = mongo_handler.get_single_comment_classification_totals('has_many_user_classifications')
         self.assertEqual(many[constants.POSITIVITY]['wavy'], 2)
         self.assertEqual(many[constants.POSITIVITY]['not_wavy'], 1)
         self.assertDictEqual(many[constants.CATEGORY], 
@@ -192,7 +190,7 @@ class UserClassificationTest(unittest.TestCase):
             'self': 0, 'kanye': 1, 'copypasta': 0}
         )
 
-        few = mongo_handler.get_single_comment_classification_totals('only_classified_category', db=db)
+        few = mongo_handler.get_single_comment_classification_totals('only_classified_category')
         self.assertDictEqual(few[constants.CATEGORY],
             {'misc': 0, 'poster': 0, 'op': 0, 'link': 1,
             'this_sub': 0, 'external_person': 0, 'external_object': 0, 
@@ -203,17 +201,17 @@ class UserClassificationTest(unittest.TestCase):
         )
 
     def testCommentWithClassification(self):
-        comment = mongo_handler.get_single_user_classification('has_many_user_classifications', db=db)
+        comment = mongo_handler.get_single_user_classification('has_many_user_classifications')
         self.assertEqual(comment[constants.POSITIVITY], 'wavy')
         self.assertEqual(comment[constants.CATEGORY], 'poster')
 
-        comment = mongo_handler.get_single_user_classification('only_classified_category', db=db)
+        comment = mongo_handler.get_single_user_classification('only_classified_category')
         self.assertEqual(comment[constants.CATEGORY], 'link')
         self.assertNotIn(constants.POSITIVITY, comment)
     
     def testAllClassifiedComments(self):
-        self.assertEqual(3, len(mongo_handler.get_all_user_classified_comments(db=db)))
-        for comment in mongo_handler.get_all_user_classified_comments(db=db):
+        self.assertEqual(3, len(mongo_handler.get_all_user_classified_comments()))
+        for comment in mongo_handler.get_all_user_classified_comments():
             if comment['name'] == 'only_classified_category':
                 self.assertDictEqual(comment, {'name': 'only_classified_category', 'category': 'link'})
 
@@ -227,7 +225,7 @@ class MetricsDisplay(unittest.TestCase):
         self.client.test[constants.TRAIN_CATEGORIES].delete_many({})
 
     def testMetricsDisplay(self):
-        metrics = mongo_handler.categories_counts(db=db)
+        metrics = mongo_handler.categories_counts()
 
         total_pct = 0
         total_count = 0
@@ -241,4 +239,5 @@ class MetricsDisplay(unittest.TestCase):
         self.assertLessEqual(total_pct, 100)
 
 if __name__ == '__main__':
+    constants.DB_KANYE = constants.DB_TEST
     unittest.main()

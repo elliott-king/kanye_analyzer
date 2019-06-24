@@ -8,6 +8,7 @@
 
 ### Med Priority:
 - Modify colors of pie chart to be more distinctive.
+- Python server should be two servers! So they can run independently.
 - Re-label pie chart.
 - Python server should restart upon code change.
 - async nature of 'get_estimate' in app.js causes comments to not return to frontend in order (should just call for multiple comments @ once, then return answers for all in one go).
@@ -15,8 +16,10 @@
 
 ### Low priority:
 - In react select for user classification, user should have a null option.
+- nlp.py feature extractor should have a more useful error if a comment does not have a specific key.
+- Instead of adding db=db kwarg to mongo_handler, just patch the var in unittests.
+  - Also make the test db the default.
 - Get rid of column name in 'args' (server arguments).
-- Name server file 'app.js'
 - Reinforce (on client and server) that data is JSON format
 - style.css is being duplicated (incl. @ index.jsx, also copies w/ webpack.config)
 - Move to PostgreSQL

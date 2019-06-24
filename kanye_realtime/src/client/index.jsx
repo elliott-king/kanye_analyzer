@@ -56,7 +56,7 @@ class Comment extends React.Component{
         event.preventDefault();
         var ret = {};
         if (this.state.selectedCategory) { ret['category'] = this.state.selectedCategory.value;}
-        if (this.state.selectedPositivity) { ret['positivity'] = this.state.selectedPositivity.value;}
+        if (this.state.selectedPositivity) { ret['is_wavy'] = this.state.selectedPositivity.value;}
         if(Object.keys(ret).length === 0 && ret.constructor === Object) return;
         this.props.submitUserClassification(ret, this.props.commentId);
     }

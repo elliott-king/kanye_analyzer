@@ -11,6 +11,7 @@
 - Re-label pie chart.
 - Python server should restart upon code change.
 - async nature of 'get_estimate' in app.js causes comments to not return to frontend in order (should just call for multiple comments @ once, then return answers for all in one go).
+- Refactor comment extraction - just get all comments from mongo, check if contains 'category' after.
 
 ### Low priority:
 - In react select for user classification, user should have a null option.

@@ -24,12 +24,18 @@ function displayContent() {
                     labels: Object.keys(data.positivity_statistics),
                     datasets: [{
                         data: Object.values(data.positivity_statistics),
-                        backgroundColor: ["#F7464A", "#46BFBD", "#FDB45C", "#949FB1", "#4D5360"],
-                        hoverBackgroundColor: ["#FF5A5E", "#5AD3D1", "#FFC870", "#A8B3C5", "#616774"]
+                        
+                        // colors taken from colorkitty.com
+                        backgroundColor: ["#173f5f", "#20639b", "#3caea3"],
+                    //    backgroundColor: ["#F7464A", "#46BFBD", "#FDB45C", "#949FB1", "#4D5360"],
+                    //    hoverBackgroundColor: ["#FF5A5E", "#5AD3D1", "#FFC870", "#A8B3C5", "#616774"]
                     }]
                 },
                 options: {
-                    responsive: true
+                    responsive: true,
+                    legend: {
+                        position: 'right'
+                    }
                 }
             });
 
@@ -49,7 +55,10 @@ function displayContent() {
                     }]
                 },
                 options: {
-                    responsive: true
+                    responsive: true,
+                    legend: {
+                        position: 'right'
+                    }
                 }
             });
         } else {

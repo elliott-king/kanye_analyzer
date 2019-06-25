@@ -35,6 +35,14 @@ function displayContent() {
                     responsive: true,
                     legend: {
                         position: 'right'
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: labelWithPercent,
+                            title: function(tooltipItem, data) { 
+                                return data.labels[tooltipItem[0].index];
+                            }
+                        }
                     }
                 }
             });
@@ -58,6 +66,14 @@ function displayContent() {
                     responsive: true,
                     legend: {
                         position: 'right'
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: labelWithPercent,
+                            title: function(tooltipItem, data) { 
+                                return data.labels[tooltipItem[0].index];
+                            }
+                        }
                     }
                 }
             });
@@ -87,4 +103,16 @@ function rainbow(numOfSteps, step) {
     }
     var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
     return (c);
+}
+
+// Borrowed from SO.
+// https://stackoverflow.com/questions/37257034/#49717859
+function labelWithPercent(tooltipItem, data) {
+    var dataset = data.datasets[tooltipItem.datasetIndex];
+    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+    var total = meta.total;
+    var currentValue = dataset.data[tooltipItem.index];
+    var percentage = parseFloat((currentValue/total*100).toFixed(1));
+//    return currentValue + ' (' + percentage + '%)';
+    return percentage + '%';
 }

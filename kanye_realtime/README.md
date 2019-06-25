@@ -3,11 +3,11 @@
 
 ### High Priority:
 - Rerun python model every so often (taking into account user classification).
-- Change nlp classifier based on given input.
+- Make sure stats are pulling from combined input.
 - Better integrate python & node using rabbitMQ: https://medium.com/@HolmesLaurence/integrating-node-and-python-6b8454bfc272
 
 ### Med Priority:
-- Modify colors of pie chart to be more distinctive.
+- Move statistics to python.
 - Python server should be two servers! So they can run independently.
 - Re-label pie chart.
 - Python server should restart upon code change.

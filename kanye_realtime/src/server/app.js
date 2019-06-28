@@ -80,7 +80,7 @@ mongoHandler(dbname).then(function(export_fns) {
         });
 
         socket.on('user_classification', (classification, commentId) => {
-            // x-real-ip header supplied by nginx setting.
+            // x-real-ip header supplied by nginx setting. Needed to get user IP
             var ipaddr = socket.handshake.headers['x-real-ip'] || socket.handshake.address;
             request({
                 url: 'http://localhost:5000/user_classification',

@@ -229,6 +229,29 @@ def categories_counts():
         count[category] = (val, int(float(val)/float(total) * 100))
     return count
 
+def positivity_counts():
+    count = defaultdict(int)
+    used_names = set()
+    total = 0
+
+    positivized_comments = get_positivity_classified_comments()
+    user_classified_comments = get_all_user_classified_comments()
+
+    for comment in positivized_comments:
+        count[comment[constants.POSITIVITY]] += 1
+        used_names.add(comment['name'])
+        total += 1
+
+    for comment in user_classified_comments:
+        if constants.POSITIVITY in comment and comment['name'] not in used_names:
+            count[comment[constants.POSITIVITY]] += 1
+            total += 1
+
+    for positivity in count:
+        val = count[positivity]
+        count[positivity] = (val, int(float(val)/float(total) * 100))
+    return count
+
 def classified_comments_with_category():
     return _combine_official_and_user_classified_comments(get_categorized_classified_comments, constants.CATEGORY)
 

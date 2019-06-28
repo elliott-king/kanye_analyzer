@@ -314,7 +314,6 @@ class CombineCommentsWithClassification(unittest.TestCase):
             mongo_handler.update_user_classification(uc['name'], uc['classification'])
         
         metrics = mongo_handler.categories_counts()
-        print(metrics)
 
         total_pct = 0
         total_count = 0
@@ -326,6 +325,20 @@ class CombineCommentsWithClassification(unittest.TestCase):
         self.assertEqual(total_count, 14)
         self.assertGreaterEqual(total_pct, 98)
         self.assertLessEqual(total_pct, 100)
+        
+        metrics = mongo_handler.positivity_counts()
+
+        total_pct = 0
+        total_count = 0
+
+        for positivity in metrics:
+            count, pct = metrics[positivity]
+            total_count += count 
+            total_pct += pct 
+        self.assertEqual(total_count, 6)
+        self.assertGreaterEqual(total_pct, 98)
+        self.assertLessEqual(total_pct, 100)
+
 
         
 

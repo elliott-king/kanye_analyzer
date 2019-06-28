@@ -261,6 +261,9 @@ class CombineCommentsWithClassification(unittest.TestCase):
         comments_collection = client.test[constants.COMMENTS]
         comments_collection.delete_many({})
 
+        user_classifications = client.test[constants.USER_CLASSIFIED]
+        user_classifications.delete_many({})
+
     def testOnlyOfficialComments(self):
 
         categorized = mongo_handler.classified_comments_with_category()
@@ -305,6 +308,26 @@ class CombineCommentsWithClassification(unittest.TestCase):
             self.assertIn(positivity, constants.POSITIVITY_TEXT)
             self.assertIn('body', comment)
             self.assertIn('name', comment)
+
+    def testMetricsWithUserClassification(self):
+        for uc in user_classifications:
+            mongo_handler.update_user_classification(uc['name'], uc['classification'])
+        
+        metrics = mongo_handler.categories_counts()
+        print(metrics)
+
+        total_pct = 0
+        total_count = 0
+
+        for category in metrics:
+            count, pct = metrics[category]
+            total_count += count 
+            total_pct += pct 
+        self.assertEqual(total_count, 14)
+        self.assertGreaterEqual(total_pct, 98)
+        self.assertLessEqual(total_pct, 100)
+
+        
 
 
 if __name__ == '__main__':

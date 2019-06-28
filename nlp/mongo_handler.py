@@ -1,5 +1,7 @@
+from collections import defaultdict
 from pymongo import MongoClient
 from bson.son import SON
+
 import constants
 import pymongo
 import pprint
@@ -146,6 +148,7 @@ def get_single_user_classification(comment_name):
     return comment
 
 # Much copy paste. Wow reuse code. Def refactor.
+# Returns list of comments with their category and positivity (if they exist)
 def get_all_user_classified_comments():
     user_classified = client[constants.DB_KANYE][constants.USER_CLASSIFIED]
     user_classified_totals = user_classified.find({})
@@ -176,23 +179,6 @@ def get_link_comments():
     cursor = categories.find({"category": "link"})
     return cursor
 
-def get_count(category):
-    categories = client[constants.DB_KANYE][constants.TRAIN_CATEGORIES]
-    return categories.find({"category": category}).count()
-
-def categories_counts():
-    metrics = {}
-    running_sum = 0
-    for category in constants.CATEGORIES_TEXT:
-        count = get_count(category)
-        metrics[category] = count
-        running_sum += count
-    
-    for category in metrics:
-        val = metrics[category]
-        metrics[category] = (val, int(float(val)/float(running_sum) * 100))
-    return metrics
-
 def _combine_official_and_user_classified_comments(function, field):
     pairs = []
     used_names = set() # In case the users classify a comment that I did myself.
@@ -214,6 +200,34 @@ def _combine_official_and_user_classified_comments(function, field):
             used_names.add(user_classified_comment['name'])
     
     return pairs
+
+def get_count(category):
+    categories = client[constants.DB_KANYE][constants.TRAIN_CATEGORIES]
+    return categories.find({"category": category}).count()
+
+# Maps each category to (total, pct) comments in that category.
+def categories_counts():
+    count = defaultdict(int)
+    used_names =  set()
+    total = 0
+
+    categorized_comments = get_categorized_classified_comments()
+    user_classified_comments = get_all_user_classified_comments()
+
+    for comment in categorized_comments:
+        count[comment[constants.CATEGORY]] += 1
+        used_names.add(comment['name'])
+        total += 1
+    
+    for comment in user_classified_comments:
+        if constants.CATEGORY in comment and comment['name'] not in used_names:
+            count[comment[constants.CATEGORY]] += 1
+            total += 1
+    
+    for category in count:
+        val = count[category]
+        count[category] = (val, int(float(val)/float(total) * 100))
+    return count
 
 def classified_comments_with_category():
     return _combine_official_and_user_classified_comments(get_categorized_classified_comments, constants.CATEGORY)

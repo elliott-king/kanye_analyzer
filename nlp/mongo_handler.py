@@ -224,9 +224,6 @@ def categories_counts():
             count[comment[constants.CATEGORY]] += 1
             total += 1
     
-    for category in count:
-        val = count[category]
-        count[category] = (val, int(float(val)/float(total) * 100))
     return count
 
 def positivity_counts():
@@ -247,9 +244,6 @@ def positivity_counts():
             count[comment[constants.POSITIVITY]] += 1
             total += 1
 
-    for positivity in count:
-        val = count[positivity]
-        count[positivity] = (val, int(float(val)/float(total) * 100))
     return count
 
 def classified_comments_with_category():

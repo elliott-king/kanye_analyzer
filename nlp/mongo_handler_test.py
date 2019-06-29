@@ -227,16 +227,10 @@ class MetricsDisplay(unittest.TestCase):
     def testMetricsDisplay(self):
         metrics = mongo_handler.categories_counts()
 
-        total_pct = 0
         total_count = 0
 
         for category in metrics:
-            count, pct = metrics[category]
-            total_count += count 
-            total_pct += pct 
-        self.assertEqual(total_count, 12)
-        self.assertGreaterEqual(total_pct, 98)
-        self.assertLessEqual(total_pct, 100)
+            total_count += metrics[category]
 
 class CombineCommentsWithClassification(unittest.TestCase):
 
@@ -315,29 +309,20 @@ class CombineCommentsWithClassification(unittest.TestCase):
         
         metrics = mongo_handler.categories_counts()
 
-        total_pct = 0
         total_count = 0
 
         for category in metrics:
-            count, pct = metrics[category]
-            total_count += count 
-            total_pct += pct 
+            total_count += metrics[category] 
         self.assertEqual(total_count, 14)
-        self.assertGreaterEqual(total_pct, 98)
-        self.assertLessEqual(total_pct, 100)
         
         metrics = mongo_handler.positivity_counts()
 
-        total_pct = 0
         total_count = 0
 
         for positivity in metrics:
-            count, pct = metrics[positivity]
-            total_count += count 
-            total_pct += pct 
+            total_count += metrics[positivity]
+
         self.assertEqual(total_count, 6)
-        self.assertGreaterEqual(total_pct, 98)
-        self.assertLessEqual(total_pct, 100)
 
 
         

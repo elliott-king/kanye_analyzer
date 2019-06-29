@@ -63,3 +63,15 @@ def user_classification():
 
 
     return "Invalid request - expecting POST."
+
+@app.route('/statistics')
+def generate_statistics():
+    print("Generating statistics for all comments")
+
+    positivity_counts = mongo_handler.positivity_counts()
+    category_counts = mongo_handler.categories_counts()
+    return json.dumps({
+        "positivity_statistics": positivity_counts,
+        "category_statistics": category_counts
+    })
+    

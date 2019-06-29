@@ -41,25 +41,34 @@ function get_estimate(comment, callback) {
     });
 };
 
+function get_statistics(callback) {
+    if (Date.now() < lastStatisticsTime + 6*60*60*1000 && !_.isEmpty(cachedStats)) {
+        console.log("Returning cached stats");
+        callback(cachedStats);
+    } else {
+        console.log("Requesting new statistics at:", Date.now());
+        request({
+            url: 'http://localhost:5000/statistics',
+            method: "GET"
+        }, function(error, response, body) {
+            if(error) console.error('error:', error); 
+            lastStatisticsTime = Date.now();
+            cachedStats = body;
+            callback(body);
+        });
+    }
+}
+
 // First connect to mongodb.
 mongoHandler(dbname).then(function(export_fns) {
 
     // Express routing for statistics.
     app.get('/statistics/data.json', function(req, res) {
-        if (Date.now() < lastStatisticsTime + 6*60*60*1000 && !_.isEmpty(cachedStats)) {
-            res.send(JSON.stringify(cachedStats));
-        } else {
-            export_fns.getPositivityStatistics(function(posStats) {
-                export_fns.getCategoryStatistics(function(catStats) {
-                    cachedStats = {
-                        "positivity_statistics": posStats,
-                        "category_statistics": catStats
-                    };
-                    lastStatisticsTime = Date.now();
-                    res.send(JSON.stringify(cachedStats));
-                }, e => console.error('Unable to get category stats:', e));
-            });
-        }
+        get_statistics(function(body) { 
+            console.log(body);
+            console.log('stringified:', JSON.stringify(body));
+            res.send(body);
+        });
     });
 
     // Handle websockets.

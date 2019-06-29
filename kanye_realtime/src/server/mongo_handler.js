@@ -22,50 +22,6 @@ function isWavy(commentBody) {
 
 const export_fns = {
 
-	getPositivityStatistics: function(callback) {
-        let collection = db.collection(CATEGORIES);
-        var cursor = collection.find({'is_wavy': {'$exists': true}});
-        ret = {
-            'wavy': 0,
-            'not wavy': 0
-        };
-        cursor.forEach(function(doc) {
-            test.ok(doc != null);
-            if (doc.is_wavy == 'wavy') {
-                ret['wavy'] += 1;
-            } else {
-                ret['not wavy'] += 1;
-            }
-        }, function(err) {
-            test.equal(null, err);
-            console.log('Generated new positivity stats at', Date.now());
-            lastPositivityTime = Date.now();
-            cachedPositivityStats = ret;
-            callback(ret);
-        });
-    },
-    
-	getCategoryStatistics: function(callback) {
-        let collection = db.collection(CATEGORIES);
-        var cursor = collection.find({'category': {'$exists': true}});
-        ret = {};
-        cursor.forEach(function(doc) {
-            test.ok(doc != null);
-            if(ret.hasOwnProperty([doc.category])) {
-                ret[doc.category] += 1;
-            } else {
-                ret[doc.category] = 1;
-            }
-
-        }, function(err) {
-            test.equal(null, err);
-            console.log('Generated new category stats at', Date.now());
-            lastCategoryTime = Date.now();
-            cachedCategoryStats = ret;
-            callback(ret);
-        });
-	},
-
 	// Expects a json-parsed object
 	insertIfValid: function(comment) {
         let collection = db.collection(COMMENTS);

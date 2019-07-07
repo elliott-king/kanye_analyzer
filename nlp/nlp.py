@@ -26,6 +26,13 @@ python3 cli:
     comment = mongo_handler.get_comment(name)
     comment_features = nlp.get_features(comment)
     classifier.classify(comment_features)
+
+    original_tags, classified_tags = [], []
+    for features, tag in test:
+        original_tags.append(tag)
+        classified_tags.append(classifier.classify(features))
+    cm = nltk.ConfusionMatrix(original_tags, classified_tags)
+    print(cm.pretty_format(sort_by_count=True, show_percents=True, truncate=9))
 '''
 
 # tokenize string:           nltk.word_tokenize(s)
@@ -150,6 +157,24 @@ def category_metrics_display():
                 category, count, pct)
     s += 'TOTAL: {}'.format(total)
     return s
+
+'''
+Generate confusion matrix for categories. See explanation of confusion matrix:
+    http://www.nltk.org/book/ch06.html (section 3.4)
+'''
+def generate_confusion_matrix(classifier=None, test=None):
+    if not test:
+        test, train = get_test_train_sets_category()
+
+    if not classifier:
+        classifier = nltk.NaiveBayesClassifier.train(train)
+
+    original_tags, classified_tags = [], []
+    for features, tag in test:
+        original_tags.append(tag)
+        classified_tags.append(classifier.classify(features))
+    cm = nltk.ConfusionMatrix(original_tags, classified_tags)
+    print(cm.pretty_format(sort_by_count=True, show_percents=True, truncate=9))
 
 def request_input_on_cursor(comment):
     s = '\nThe categories are:\n' + '\n'.join(

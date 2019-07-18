@@ -72,3 +72,6 @@ typings/
 
 # VSCode workspace
 *.code-workspace
+
+# Saved NLP models
+*.h5

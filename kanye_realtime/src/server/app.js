@@ -54,6 +54,7 @@ function get_statistics(callback) {
             if(error) console.error('error:', error); 
             lastStatisticsTime = Date.now();
             cachedStats = body;
+            console.log("Statistics fetched: ", body);
             callback(body);
         });
     }
@@ -65,8 +66,6 @@ mongoHandler(dbname).then(function(export_fns) {
     // Express routing for statistics.
     app.get('/statistics/data.json', function(req, res) {
         get_statistics(function(body) { 
-            console.log(body);
-            console.log('stringified:', JSON.stringify(body));
             res.send(body);
         });
     });

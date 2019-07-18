@@ -12,6 +12,8 @@ USER_CLASSIFIED = 'user-classification'
 POSITIVITY = 'is_wavy'
 CATEGORY = 'category'
 
+# Python remembers order of insertion for 3.7+
+
 # Positive or negative use
 # Also can use both for one thing
 POSITIVITY_TEXT = {

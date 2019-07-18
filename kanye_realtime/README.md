@@ -5,8 +5,12 @@
 - Rerun python model every so often (taking into account user classification).
 - Better integrate python & node using rabbitMQ: https://medium.com/@HolmesLaurence/integrating-node-and-python-6b8454bfc272
 - BACK UP MONGO
+- Add metadata to mlp
 
 ### Med Priority:
+- Shuffle data before feeding into model.
+- Retain mlp's vectorizer for use in classifying comments?
+- Move mlp to seperate dir w/in nlp/
 - Consider graphing change in accuracy w/ more test data: run several times & randomize each time, graph changes
 - Python server should be two servers! So they can run independently.
 - Python server should restart upon code change.

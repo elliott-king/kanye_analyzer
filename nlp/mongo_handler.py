@@ -51,7 +51,6 @@ def update_comment_category(comment_name, category=None, is_wavy=None):
     categories = client[constants.DB_KANYE][constants.TRAIN_CATEGORIES]
     # TODO: compress into one statement?
     # TODO: make this ACID compliant (both should fail or succeed together)
-    # TODO: verify that category & is_wavy are correct.
     if category:
         if category not in constants.CATEGORIES_TEXT:
             raise ValueError('Category does not exist:', category)

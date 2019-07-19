@@ -47,6 +47,7 @@ python3 cli:
 # name, id (identifier, identifier with t1_ prefix)
 # permalink (does not include reddit.com)
 # link_id, link_permalink (overall thread id & permalink, includes reddit.com)
+# consider also using neighbor words around 'wavy'
 
 def get_features(comment):
     if not comment:
@@ -75,27 +76,6 @@ def get_features(comment):
     features['is OP'] = comment['is_submitter']
     features['mentions user'] = 'u/' in body
 
-#    unique_token_count = 0
-#    for word in tokens:
-#        # mongo cannot handle 'contains(.)', or anything with a period, as a field
-#        if '.' not in word:
-#            
-#            # nltk will not split up emojis that have no space between them
-#            emoji_list = emoji.emoji_lis(word)
-#            if emoji_list:
-#                for d in emoji_list:
-#                    emoji_s = 'emoji ({})'.format(d['emoji'])
-#                    features[emoji_s] = True
-
-#            s = 'contains ({})'.format(word.lower())
-#            if s not in features:
-#                # No need to worry about individual emoji count for this.
-#                unique_token_count += 1
-#                features[s] = True
-
-#    features['pcnt unique'] = int(float(unique_token_count) 
-#            / float(len(tokens)) * 100)
-
     for e in constants.USEFUL_EMOJI:
         features['emoji ({})'.format(emoji.emojize(e, use_aliases=True))] \
             = emoji.emojize(e, use_aliases=True) in comment['body']
@@ -113,10 +93,6 @@ def get_features(comment):
         features['one ne'] = True
     else:
         features['multiple ne'] = True
-
-    # classifier cannot handle nonbinary features
-    # features['ne ratio'] = features['num ne'] / len(tokens)
-    # TODO: consider also using neighbor words around 'wavy'
 
     return features
 
@@ -158,11 +134,12 @@ def category_metrics_display():
     s += 'TOTAL: {}'.format(total)
     return s
 
-'''
-Generate confusion matrix for categories. See explanation of confusion matrix:
-    http://www.nltk.org/book/ch06.html (section 3.4)
-'''
 def generate_confusion_matrix(classifier=None, test=None):
+'''Generate confusion matrix for categories. 
+
+    See explanation of confusion matrix: 
+    http://www.nltk.org/book/ch06.html (section 3.4)
+'''   
     if not test:
         test, train = get_test_train_sets_category()
 
@@ -230,11 +207,3 @@ if __name__ == '__main__':
     command_cursor = mongo_handler.get_noncategorized_comments(limit=50)
     for comment in command_cursor:
         request_input_on_cursor(comment)
-
-    # To edit ALL comments with category == 'link'
-    # not actually a command cursor
-#    command_cursor = mongo_handler.get_link_comments() 
-#    for category in command_cursor:
-#        comment = mongo_handler.get_comment(category['name'], pretty=False)
-#        request_input_on_cursor(comment)
-

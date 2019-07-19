@@ -158,7 +158,6 @@ class CategoriesDBTest(unittest.TestCase):
             mongo_handler.update_comment_category('c_name', is_wavy='nonexistent')
     
     def testIn(self):
-        # TODO: include comment existing in database
         self.assertFalse(mongo_handler.is_updated('zarglbargl'))
         self.assertTrue(mongo_handler.is_updated('in_db'))
 
@@ -329,10 +328,6 @@ class CombineCommentsWithClassification(unittest.TestCase):
             total_count += metrics[positivity]
 
         self.assertEqual(total_count, 6)
-
-
-        
-
 
 if __name__ == '__main__':
     constants.DB_KANYE = constants.DB_TEST

@@ -177,14 +177,17 @@ def generate_confusion_matrix(classifier=None, test=None):
     print(cm.pretty_format(sort_by_count=True, show_percents=True, truncate=9))
 
 def request_input_on_cursor(comment):
+    categories = constants.CATEGORIES_TEXT
+    positivity_options = constants.POSITIVITY_TEXT
+    
+    POSITIVITY_VECTORIZATION = list(constants.POSITIVITY_TEXT.keys())
+
+    CATEGORY_VECTORIZATION = list(constants.CATEGORIES_TEXT.keys())
+ 
     s = '\nThe categories are:\n' + '\n'.join(
             ['{}: {}'.format(i, v) for i, v in enumerate(categories)])
     print(s + '\n')
     features = get_features(comment)
-#    features_no_contains = {}
-#    for feature in features:
-#        if 'contains' not in feature:
-#            features_no_contains[feature] = features[feature]
     print('==============================================================')
     print(comment['body'])
     print('Created (utc): ', comment['created_utc'])
@@ -199,9 +202,9 @@ def request_input_on_cursor(comment):
                 len(categories) - 1)
         category = input('Category? ')
 
-    print('Category chosen:', categories[int(category)])
+    print('Category chosen:', categories[CATEGORY_VECTORIZATION[int(category)]])
     name = comment['name']
-    category = categories[int(category)]
+    category = categories[CATEGORY_VECTORIZATION[int(category)]]
 
     p = '\nThe positivity options are:\n' + '\n'.join(
             ['{}: {}'.format(i, v) for i, v in enumerate(positivity_options)])
@@ -215,19 +218,15 @@ def request_input_on_cursor(comment):
                 'Please use a number between 0 and', 
                 len(positivity_options) - 1)
         positivity = input('Positivity?')
-    print('This comment is:', positivity_options[int(positivity)])
-    positivity = positivity_options[int(positivity)]
+    print('This comment is:', positivity_options[POSITIVITY_VECTORIZATION[int(positivity)]])
+    positivity = positivity_options[POSITIVITY_VECTORIZATION[int(positivity)]]
 
     mongo_handler.update_comment_category(
             name, category=category, is_wavy=positivity)
 
-
 # generate train data by hand
 if __name__ == '__main__':
-
-    categories = constants.CATEGORIES_TEXT.keys()
-    positivity_options = constants.POSITIVITY_TEXT.keys()
-
+    
     command_cursor = mongo_handler.get_noncategorized_comments(limit=50)
     for comment in command_cursor:
         request_input_on_cursor(comment)

@@ -7,6 +7,7 @@ Usage:
 """
 
 import emoji
+import nltk
 import random
 import tensorflow
 
@@ -71,14 +72,23 @@ def _extract_relevant_metadata_as_string(comment):
     """
     # Consider: is the comment long?
     body = _convert_emoji(comment['body'])
+    strs = [] # Will not append until body has been analyzed.
+
+    # Comment is a top-level comment
     if comment['link_id'] == comment['parent_id']:
-        body += ' _top_level_comment'
+        strs.append('_top_level_comment')
+    # Comment posted by the OP
     if comment['is_submitter']: 
-        body += ' _is_op'
+        strs.append('_is_op')
+    # Directly mentions another user
     if 'u/' in body:
-        body += ' _mentions_user'
-    
-    return body
+        strs.append('_mentions_user')
+    # Named entities
+    for chunk in nltk.chunk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(body))):
+        if hasattr(chunk, 'label'):
+            strs.append('_contains_ne')
+
+    return body + ' ' + ' '.join(strs)
 
 def comments_with_classification(mode=constants.POSITIVITY):
     """Preps comments and their label for the model.

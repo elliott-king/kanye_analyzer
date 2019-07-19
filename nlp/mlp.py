@@ -21,6 +21,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
 
+# Ratio of train data to test data
+RATIO = 0.8
+
 # Vectorization parameters
 # Range (inclusive) of n-gram sizes for tokenizing text.
 NGRAM_RANGE = (1, 2)
@@ -45,18 +48,38 @@ CATEGORY_VECTORIZATION = dict(zip(
     constants.CATEGORIES_TEXT.keys(),
     list(range(len(constants.CATEGORIES_TEXT)))
 ))
-
-                
+            
 def _convert_emoji(s):
     """Used to convert emojis in text to a simplified string.
 
     The emoji library converts 🌊  to :water_wave:
     We modify the delimiter to a character that the vectorizer will retain, and
-        add the space to ensure each emoji is seperate.
+        add the space to ensure each emoji is a seperate token.
     """
-    return emoji.demojize(s, delimiters=('_', '_ '))
+    return emoji.demojize(s, delimiters=(' _', '_ '))
 
-# TODO: to begin with, we will ignore metadata
+def _extract_relevant_metadata_as_string(comment):
+    """Identify useful metadata and write as a string. 
+
+    This allows us to create a new token in the body for relevant feaetures. 
+
+    # Arguments
+        comment: dict, full comment from mongodb
+
+    # Returns: 
+        string, body of comment plus additional words representing metadata
+    """
+    # Consider: is the comment long?
+    body = _convert_emoji(comment['body'])
+    if comment['link_id'] == comment['parent_id']:
+        body += ' _top_level_comment'
+    if comment['is_submitter']: 
+        body += ' _is_op'
+    if 'u/' in body:
+        body += ' _mentions_user'
+    
+    return body
+
 def comments_with_classification(mode=constants.POSITIVITY):
     """Preps comments and their label for the model.
     
@@ -73,19 +96,19 @@ def comments_with_classification(mode=constants.POSITIVITY):
     if mode == constants.POSITIVITY: 
         classified_comments = mongo_handler.classified_comments_with_positivity()
         for comment, label in classified_comments:
-            texts.append(_convert_emoji(comment['body']))
+            texts.append(_extract_relevant_metadata_as_string(comment))
             vectorized_labels.append(POSITIVITY_VECTORIZATION[label])
     elif mode == constants.CATEGORY:
         classified_comments = mongo_handler.classified_comments_with_category()
         for comment, label in classified_comments:
-            texts.append(_convert_emoji(comment['body']))
+            texts.append(_extract_relevant_metadata_as_string(comment))
             vectorized_labels.append(CATEGORY_VECTORIZATION[label])
     else: 
         raise ValueError(f'You must request classification of either '
                 '{constants.POSITIVITY} or constants.CATEGORY}')
 
     # TODO: shuffle these together
-    cutoff = int(len(texts) * .7)
+    cutoff = int(len(texts) * RATIO)
     return (texts[:cutoff], vectorized_labels[:cutoff]), (texts[cutoff:], vectorized_labels[cutoff:])
 
 def create_ngram_vectorizer():
@@ -233,7 +256,7 @@ def mlp_model(layers, units, dropout_rate, input_shape, num_classes):
     return model
 
 def train_ngram_model(data,
-                      learning_rate=1e-3,
+                      learning_rate=5e-5,
                       epochs=1000,
                       batch_size=128,
                       layers=2,

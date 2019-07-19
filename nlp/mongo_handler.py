@@ -53,11 +53,15 @@ def update_comment_category(comment_name, category=None, is_wavy=None):
     # TODO: make this ACID compliant (both should fail or succeed together)
     # TODO: verify that category & is_wavy are correct.
     if category:
+        if category not in constants.CATEGORIES_TEXT:
+            raise ValueError('Category does not exist:', category)
         categories.find_one_and_update(
                 {'name': comment_name},
                 {'$set': {constants.CATEGORY: category}},
                 upsert=True)
     if is_wavy:
+        if is_wavy not in constants.POSITIVITY_TEXT:
+            raise ValueError('Positivity does not exist:', is_wavy)
         categories.find_one_and_update(
                 {'name': comment_name},
                 {'$set': {constants.POSITIVITY: is_wavy}},

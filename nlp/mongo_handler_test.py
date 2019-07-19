@@ -150,6 +150,12 @@ class CategoriesDBTest(unittest.TestCase):
 
         comments_collection = self.client.test[constants.COMMENTS]
         comments_collection.delete_many({})
+
+    def testBadComment(self):
+        with self.assertRaises(ValueError):
+            mongo_handler.update_comment_category('c_name', category='nonexistent')
+        with self.assertRaises(ValueError):
+            mongo_handler.update_comment_category('c_name', is_wavy='nonexistent')
     
     def testIn(self):
         # TODO: include comment existing in database

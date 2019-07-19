@@ -204,7 +204,7 @@ def request_input_on_cursor(comment):
 
     print('Category chosen:', categories[CATEGORY_VECTORIZATION[int(category)]])
     name = comment['name']
-    category = categories[CATEGORY_VECTORIZATION[int(category)]]
+    category = CATEGORY_VECTORIZATION[int(category)]
 
     p = '\nThe positivity options are:\n' + '\n'.join(
             ['{}: {}'.format(i, v) for i, v in enumerate(positivity_options)])
@@ -219,7 +219,7 @@ def request_input_on_cursor(comment):
                 len(positivity_options) - 1)
         positivity = input('Positivity?')
     print('This comment is:', positivity_options[POSITIVITY_VECTORIZATION[int(positivity)]])
-    positivity = positivity_options[POSITIVITY_VECTORIZATION[int(positivity)]]
+    positivity = POSITIVITY_VECTORIZATION[int(positivity)]
 
     mongo_handler.update_comment_category(
             name, category=category, is_wavy=positivity)

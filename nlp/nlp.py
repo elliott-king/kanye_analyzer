@@ -135,11 +135,11 @@ def category_metrics_display():
     return s
 
 def generate_confusion_matrix(classifier=None, test=None):
-'''Generate confusion matrix for categories. 
+    '''Generate confusion matrix for categories. 
 
-    See explanation of confusion matrix: 
-    http://www.nltk.org/book/ch06.html (section 3.4)
-'''   
+        See explanation of confusion matrix: 
+        http://www.nltk.org/book/ch06.html (section 3.4)
+    '''   
     if not test:
         test, train = get_test_train_sets_category()
 

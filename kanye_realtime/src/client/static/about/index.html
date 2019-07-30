@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+        <title>About</title>
+    </head>
+
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#">r/Kanye wavy feed</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-content" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbar-content">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/">Realtime comments</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/statistics">Comment breakdown</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link text-dark" href="/about">About</a>
+                        </li>
+                    </ul>
+                </div>
+        </nav>
+        
+        <section class="jumbotron text-center">
+            <div class="container"><h2>About</h2></div>
+        </section>
+        <div id="about-project" class="container">
+            <h3>Inspiration</h3>
+            <p>Users in r/kanye use the phrase 'wavy' (or 🌊) to refer to something positively. Because this is unified among all users, it allows us to see what is frequently complimented.</p>
+            <p>I started this project to practice both fullstack (the webapp) and machine learning (the language processing).</p>
+            <h3>Wavy feed</h3>
+            <p>This will show the five most recent comments, as well as the guess that the ML model makes for each. Additionally, you can classify them yourself, which will help to improve the model.</p>
+            <h3>Comment Breakdown</h3>
+            <p>A breakdown of all comments <b>that have been classified by a human</b>. The community is very positive towards one another!</p>
+            <h3>Predicting comments</h3>
+            <p>I hand-classified ~1000 comments, and created a simple ML model based on them. It makes guesses in real-time on the wavy feed page. I really appreciate when you classify a comment, as it will make the model better!</p>
+            <p>It's accuracy is not great (~46%), but it is significantly better than a random guess (10%). The production model is a simple <a href="http://www.nltk.org/book/ch06.html">Naive Bayes Classifier</a>, although I have a <a href="https://developers.google.com/machine-learning/guides/text-classification/">Multilayer Perceptron</a> that I may switch it with. You can see the code for them at my Github.</p>
+            <h3>Categories</h3>
+            <p>I took user comments containing 'wavy' or 🌊 and attempted to classify them as either <b>positive</b> or <b>negative</b>. Then, I attempted to classify them into one of the following categories:</p>
+            <ul>
+                <li><b>poster</b>: another poster on the subreddit</li>
+                <li><b>op</b>: the original poster of the thread</li>
+                <li><b>link</b>: the subject of the thread</li>
+                <li><b>this_sub</b>: r/kanye as a whole (or all its users)</li>
+                <li><b>Kanye</b>: the man himself</li>
+                <li><b>external_person</b>: an external individual (other than Kanye)</li>
+                <li><b>external_object</b>: an external object</li>
+                <li><b>self</b>: the user posting the comment</li>
+                <li><b>copypasta</b></li>
+                <li><b>misc</b></li>
+            </ul>
+            <h3><a href="https://github.com/elliott-king/kanye_analyzer" target="_blank">Github</a></h3>
+        </div>
+
+    </body>
+</html>

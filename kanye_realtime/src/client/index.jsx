@@ -69,7 +69,7 @@ class Comment extends React.Component{
                     <p className="comment-date col">{this.state.date}</p>
                 </div>
                 <div className="row">
-                    <p className="comment-body col"><a href={this.props.link}>{this.props.body}</a></p>
+                    <p className="comment-body col"><a href={this.props.link} target="_blank">{this.props.body}</a></p>
                 </div>
                 <div className="row classifications">
                     <div className="col returned-classifications">

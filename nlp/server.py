@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request
+from flask_apscheduler import APScheduler
 
 import nlp
 import nltk
@@ -16,12 +17,17 @@ py -m flask run
 '''
 
 app = Flask(__name__)
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
 
 positivity_test, positivity_train = nlp.get_test_train_sets_positivity()
 category_test, category_train = nlp.get_test_train_sets_category()
 
 positivity_classifier = nltk.NaiveBayesClassifier.train(positivity_train)
 category_classifier = nltk.NaiveBayesClassifier.train(category_train)
+
+n_retrained = 0
 
 @app.route('/')
 def hello_world():
@@ -71,4 +77,22 @@ def generate_statistics():
         "positivity_statistics": positivity_counts,
         "category_statistics": category_counts
     })
-    
+
+@app.route('/n_retrained')
+def count_ntrained():
+    return(f'Classifier retrained {n_retrained} times\n')
+   
+@scheduler.task('interval', id='reset_classifiers', 
+        seconds=86400, misfire_grace_time=300)
+def reset_classifier():
+    global positivity_classifier
+    global category_classifier 
+
+    positivity_test, positivity_train = nlp.get_test_train_sets_positivity()
+    category_test, category_train = nlp.get_test_train_sets_category()
+
+    positivity_classifier = nltk.NaiveBayesClassifier.train(positivity_train)
+    category_classifier = nltk.NaiveBayesClassifier.train(category_train)
+
+    global n_retrained
+    n_retrained += 1

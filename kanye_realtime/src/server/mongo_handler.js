@@ -57,7 +57,7 @@ const export_fns = {
         
         // Will be ordered new -> old
         let collection = db.collection(COMMENTS);
-		return collection.find().sort({created: -1}).limit(limit).toArray()
+		return collection.find().sort({created: -1}).limit(limit).toArray();
     },
     
     // Returns a promise.

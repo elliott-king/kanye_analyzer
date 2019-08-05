@@ -36,7 +36,6 @@ function get_estimate(comment, callback) {
         if (!body) {
             body = "Unable to create estimate for comment.";
         }
-        
         callback(body);
     });
 };
@@ -75,16 +74,36 @@ mongoHandler(dbname).then(function(export_fns) {
         console.log(`Socket ${socket.id} connected.`);
     
         // Send five most recent (oldest first).
-        export_fns.retrieveRecent(5).then( function(docsArray) {
-            for (var i = docsArray.length - 1; i >= 0; i--) {
+        export_fns.retrieveRecent(5).then(function(docsArray) {
+            let commentsArray = [];
 
-                let comment = docsArray[i];
-                get_estimate(comment, function(classification) {
-                    comment['is_wavy'] = classification['is_wavy'];
-                    comment['category'] = classification['category'];
-                    socket.emit('comment', JSON.stringify(comment));
+            // Need this as a callback to ensure order.
+            // npm requests module does not handle promises.
+            var estimate_last_value = function(arr) {
+                let comment = arr.pop();
+
+                get_estimate(comment, (classification) => {
+                    if(classification) {
+                        comment['is_wavy'] = classification['is_wavy'];
+                        comment['category'] = classification['category'];
+                    }
+                    commentsArray.push(comment);
+                    if(arr.length > 0) {
+                        estimate_last_value(arr);
+                    } else {
+                        (async () => {
+                            for (var i = 0; i < commentsArray.length; i++) {
+                                await socket.emit('comment', JSON.stringify(commentsArray[i]));
+                            }
+                        })();
+                    }
                 });
-            }
+            };
+
+            estimate_last_value(docsArray);
+        }).catch(err => {
+            console.error(err);
+            throw err;
         });
 
         socket.on('user_classification', (classification, commentId) => {

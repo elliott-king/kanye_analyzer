@@ -13,7 +13,7 @@
 - Consider graphing change in accuracy w/ more test data: run several times & randomize each time, graph changes
 - Python server should be two servers! So they can run independently.
 - Python server should restart upon code change.
-- async nature of 'get_estimate' in app.js causes comments to not return to frontend in order (should just call for multiple comments @ once, then return answers for all in one go).
+- get_estimate in app.js has callback hell. Consider changing to request-promise-native
 - Refactor comment extraction - just get all comments from mongo, check if contains 'category' after.
 
 ### Low priority:

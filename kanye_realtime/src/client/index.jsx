@@ -74,7 +74,7 @@ class Comment extends React.Component{
                 <div className="row classifications">
                     <div className="col returned-classifications">
                         <p className="row">This comment refers to: {this.props.categoryClassification}.</p>
-                        <p className="row">This comment is: {this.props.positivityClassification}.</p>
+                        <p className="row">And it is: {this.props.positivityClassification}.</p>
                     </div>
                     <form className="col classification-form" onSubmit={this.handleSubmit.bind(this)}>
                         <Select 

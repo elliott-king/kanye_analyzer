@@ -21,16 +21,16 @@ const positivityOptions = [
 ];
 
 const categoryOptions = [
-    {value: 'misc', label: 'misc/other'},
     {value: 'poster', label: 'another poster on the subreddit'},
     {value: 'op', label: 'the original poster of the thread'},
     {value: 'link', label: 'the subject of the thread'},
     {value: 'this_sub', label: 'the r/kanye subreddit'},
     {value: 'external_person', label: 'an external individual'},
     {value: 'external_object', label: 'an external object'},
-    {value: 'self', label: 'themselves'},
-    {value: 'kanye', label: 'the man himself'},
+    {value: 'self', label: 'the user who posted it'},
+    {value: 'kanye', label: 'kanye himself'},
     {value: 'copypasta', label: 'nothing. It is a copypasta'},
+    {value: 'misc', label: 'misc/other'},
 ]
 
 class Comment extends React.Component{

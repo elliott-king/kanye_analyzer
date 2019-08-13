@@ -27,7 +27,7 @@ const categoryOptions = [
     {value: 'this_sub', label: 'the r/kanye subreddit'},
     {value: 'external_person', label: 'an external individual'},
     {value: 'external_object', label: 'an external object'},
-    {value: 'self', label: 'the user who posted it'},
+    {value: 'self', label: 'the user themselves'},
     {value: 'kanye', label: 'kanye himself'},
     {value: 'copypasta', label: 'nothing. It is a copypasta'},
     {value: 'misc', label: 'misc/other'},

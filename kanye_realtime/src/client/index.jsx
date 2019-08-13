@@ -41,6 +41,7 @@ class Comment extends React.Component{
             selectedCategory: null,
             selectedPositivity: null,
             date: formatDate(props.datePosted),
+            submitButton: "Classify comment",
         };
     }
 
@@ -59,6 +60,7 @@ class Comment extends React.Component{
         if (this.state.selectedPositivity) { ret['is_wavy'] = this.state.selectedPositivity.value;}
         if(Object.keys(ret).length === 0 && ret.constructor === Object) return;
         this.props.submitUserClassification(ret, this.props.commentId);
+	this.setState({submitButton: "Done!"});
     }
 
     render() {
@@ -89,7 +91,7 @@ class Comment extends React.Component{
                             options={positivityOptions}
                             className="col"
                         />
-                        <button type="submit" className="btn">Classify comment</button>
+                        <button type="submit" className="btn">{this.state.submitButton}</button>
                     </form>
                 </div>
             </div>

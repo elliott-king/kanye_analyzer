@@ -59,6 +59,15 @@ const export_fns = {
         let collection = db.collection(COMMENTS);
 		return collection.find().sort({created: -1}).limit(limit).toArray();
     },
+
+    retrieveRandom: function(limit=1) {
+        if (limit > 10) {
+            return Promise.reject(new Error('Cannot retrieve more than 10 objects at a time.'));
+        }
+
+        let collection = db.collection(COMMENTS);
+        return collection.aggregate([{$sample: {size: limit}}]).toArray();
+    },
     
     // Returns a promise.
     close: function() {

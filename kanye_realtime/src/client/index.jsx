@@ -123,6 +123,16 @@ class CommentContainer extends React.Component {
         this.sock.emit('user_classification', classifications, commentId);
     }
 
+    requestRecentComments() {
+        console.log("Requesting recent comments");
+        this.sock.emit('recent_comments');
+    }
+    
+    requestRandomComments() {
+        console.log("Requesting random comments.");
+        this.sock.emit('random_comments');
+    }
+
 	renderComment(commentId, author, datePosted, body, link, 
             positivityClassification, categoryClassification) {
 		return (
@@ -154,6 +164,10 @@ class CommentContainer extends React.Component {
 		}
 		return (
 			<div className="comment-container container">
+            <div className="row justify-content-end">
+                <button className="btn col-3" onClick={this.requestRecentComments.bind(this)}>Get Recent Comments</button>
+                <button className="btn col-3" onClick={this.requestRandomComments.bind(this)}>Get Random Comments</button>
+            </div>
 				{commentArray}
 			</div>
 		)
@@ -161,7 +175,6 @@ class CommentContainer extends React.Component {
 
 	// TODO: hacky
 	addComment(comment) {
-
 		// Keep immutable for React
 		var newCommentQueue = this.state.commentQueue.slice();
 

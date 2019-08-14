@@ -72,39 +72,44 @@ mongoHandler(dbname).then(function(export_fns) {
     // Handle websockets.
     io.on('connection', socket => {
         console.log(`Socket ${socket.id} connected.`);
+
+        let retrieveRecent = function() {
     
-        // Send five most recent (oldest first).
-        export_fns.retrieveRecent(5).then(function(docsArray) {
-            let commentsArray = [];
+            // Send five most recent (oldest first).
+            export_fns.retrieveRecent(5).then(function(docsArray) {
+                let commentsArray = [];
+    
+                // Need this as a callback to ensure order.
+                // npm requests module does not handle promises.
+                var estimate_last_value = function(arr) {
+                    let comment = arr.pop();
+    
+                    get_estimate(comment, (classification) => {
+                        if(classification) {
+                            comment['is_wavy'] = classification['is_wavy'];
+                            comment['category'] = classification['category'];
+                        }
+                        commentsArray.push(comment);
+                        if(arr.length > 0) {
+                            estimate_last_value(arr);
+                        } else {
+                            (async () => {
+                                for (var i = 0; i < commentsArray.length; i++) {
+                                    await socket.emit('comment', JSON.stringify(commentsArray[i]));
+                                }
+                            })();
+                        }
+                    });
+                };
+    
+                estimate_last_value(docsArray);
+            }).catch(err => {
+                console.error(err);
+                throw err;
+            });
+        };
 
-            // Need this as a callback to ensure order.
-            // npm requests module does not handle promises.
-            var estimate_last_value = function(arr) {
-                let comment = arr.pop();
-
-                get_estimate(comment, (classification) => {
-                    if(classification) {
-                        comment['is_wavy'] = classification['is_wavy'];
-                        comment['category'] = classification['category'];
-                    }
-                    commentsArray.push(comment);
-                    if(arr.length > 0) {
-                        estimate_last_value(arr);
-                    } else {
-                        (async () => {
-                            for (var i = 0; i < commentsArray.length; i++) {
-                                await socket.emit('comment', JSON.stringify(commentsArray[i]));
-                            }
-                        })();
-                    }
-                });
-            };
-
-            estimate_last_value(docsArray);
-        }).catch(err => {
-            console.error(err);
-            throw err;
-        });
+        retrieveRecent();
 
         socket.on('user_classification', (classification, commentId) => {
             // x-real-ip header supplied by nginx setting. Needed to get user IP
@@ -122,6 +127,31 @@ mongoHandler(dbname).then(function(export_fns) {
                 if (!body) {
                     body = "Unable to create estimate for comment.";
                 }
+            });
+        });
+
+        socket.on('recent_comments', () => {
+            retrieveRecent();
+        });
+
+        socket.on('random_comments', () => {
+            export_fns.retrieveRandom(5).then(function(docsArray) {
+
+                // We don't explicitly need them in order.
+                for (i = 0; i < docsArray.length; i++) {
+                    let comment = docsArray[i];
+                    get_estimate(comment, (classification) => {
+                        if(classification) {
+                            comment['is_wavy'] = classification['is_wavy'];
+                            comment['category'] = classification['category'];
+                        }
+                        socket.emit('comment', JSON.stringify(comment));
+                    });
+                }
+
+            }).catch(err => {
+                console.error(err); 
+                throw err;
             });
         });
         

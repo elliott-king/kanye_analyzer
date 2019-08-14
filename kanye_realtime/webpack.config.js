@@ -4,8 +4,8 @@
 // TODO: handle production mode
 
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const webpack = require('webpack')
-const path = require('path')
+const webpack = require('webpack');
+const path = require('path');
 
 var BUILD_DIR = (path.resolve(__dirname, 'dist/client'));
 var APP_DIR = (path.resolve(__dirname, 'src/client'));
@@ -34,6 +34,10 @@ var config = {
             {
                 test: /\.css$/,
                 use: ['style-loader', 'css-loader']
+            },
+            {
+                test: /\.(tar.gz)$/i,
+                use: ['file-loader']
             }
         ]
     },

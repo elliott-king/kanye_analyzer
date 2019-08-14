@@ -4,7 +4,9 @@ import Select from 'react-select';
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 import './static/style.css';
+import './static/wavy-data.tar.gz';
 
 function formatDate(datePosted) {
     let date = new Date(datePosted * 1000);

@@ -1,8 +1,22 @@
+# r/Kanye Wavyness analyzer
+An ML project to learn what is 'wavy' - according to reddit.com/r/kanye.
+[https://realtime.cannibaltaylor.com/](https://realtime.cannibaltaylor.com/)
+
+## Inspiration
+Users in the [kanye subreddit](reddit.com/r/kanye) use the term 'wavy' (or 🌊) to refer to something positively. This is unified among most users, and it allows us to see what is frequently complimented. I started this project to practice fullstack (the webapp) as well as machine learning (the language processing).
+
 ## Wavyness in Real Time
+The wavy feed will show the five most recent comments that include 'wavy' or 🌊. For each of these, the model attempts to classify it. You can also manually classify a comment to help the model out!
 
-The reddit [kanye](reddit.com/r/kanye) subreddit has a habit of substituting 'wavy' for 'cool.' Since it is used so frequently, it allows us to interpret what the subreddit thinks highly of. Check out the webapp's [about page](https://realtime.cannibaltaylor.com/about/) for an overview of the background and idea.
+![An example comment](.github/images/wavy_feed_comment.png)
 
-Here I will talk about the server structure.
+Additionally, you can take a look at the overall breakdown of comments.
+
+![The comment breakdown](.github/images/comment_breakdown.png)
+
+Note that the breakdown is only for comments that have been classified by humans.
+
+## Project Structure
 
 I used some simple ML (python's `nltk`) on the backend to try to guess what a comment is referring to, and classify it in to one of 10 categories (see `constants.py`). I am running a bare bones localhost server that answers questions about the data.
 

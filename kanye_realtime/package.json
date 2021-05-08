@@ -18,7 +18,7 @@
     "express": "^4.17.1",
     "http": "0.0.0",
     "jquery": "^3.5.0",
-    "lodash": "^4.17.14",
+    "lodash": "^4.17.21",
     "mangodb": "^1.0.0",
     "minimist": "^1.2.3",
     "mongodb": "^3.2.7",
